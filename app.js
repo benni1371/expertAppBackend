@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 
 //DB setup
 var uristring =
-    process.env.MONGOLAB_URI ||
+    process.env.MONGODB_URI ||
     process.env.MONGOHQ_URL ||
     'mongodb://localhost:27017';
 	
