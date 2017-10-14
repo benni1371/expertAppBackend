@@ -20,8 +20,7 @@ var uristring =
 	
 mongoose.connect(uristring, {
   useMongoClient: true
-}).then(function(e){
-	console.log(e);
+}).then(function(){
 	console.log('Connected to Mongo');
 });
 
@@ -31,9 +30,6 @@ require('./routes');
 //socket io
 io.on('connection', function(socket){
   console.log('a user connected');
-  socket.on('exception', function(data){
-    //io.sockets.emit('exception',data)
-  });
 });
 
 http.listen(process.env.PORT || 3000, function(){
