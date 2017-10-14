@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 module.exports.io = io;
+console.log('dev');
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
