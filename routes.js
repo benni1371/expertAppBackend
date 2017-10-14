@@ -25,7 +25,7 @@ app.app.post('/exception', function(req, res){
 
 app.app.get('/exception', function(req, res){
     var inputDate = req.query.olderthan || new Date();
-    Exception.find({'date': { $lte: inputDate }},function(err, exceptions) {
+    Exception.find({'date': { $lt: inputDate }},function(err, exceptions) {
         if (err)
             res.send(err);
         res.json(exceptions);
