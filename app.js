@@ -16,11 +16,12 @@ app.use(bodyParser.json());
 var uristring =
     process.env.MONGOLAB_URI ||
     process.env.MONGOHQ_URL ||
-    'mongodb://localhost/HelloMongoose';
+    'mongodb://localhost:27017';
 	
 mongoose.connect(uristring, {
   useMongoClient: true
-}).then(function(){
+}).then(function(e){
+	console.log(e);
 	console.log('Connected to Mongo');
 });
 
