@@ -81,6 +81,8 @@ app.app.post('/exception/:exceptionId/comment', function(req, res){
 
         exception.comments.push(comment);
 
+        app.io.sockets.emit('comment',exception);
+
         // save the comment
         exception.save(function(err) {
             if (err)
