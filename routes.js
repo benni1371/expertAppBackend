@@ -1,5 +1,6 @@
 var app = require('./app');
-var Exception = require('./exception');
+var Exception = require('./schemas').exceptionSchema;
+var Comment = require('./schemas').commentSchema;
 
 app.app.get('/', function(req, res){
  res.send("Hello World-changed-1");
@@ -7,8 +8,9 @@ app.app.get('/', function(req, res){
 
 app.app.post('/exception', function(req, res){
     var exception = new Exception();      // create a new instance of the Exception model
-    exception.name = req.body.name;  // set the exceptions name (comes from the request)
-    exception.description = req.body.description;  // set the exceptions description (comes from the request)
+    exception.name = req.body.name;
+    exception.description = req.body.description;
+    exception.date = new Date();
 
     app.io.sockets.emit('exception',exception);
 
@@ -22,11 +24,12 @@ app.app.post('/exception', function(req, res){
 });
 
 app.app.get('/exception', function(req, res){
-    Exception.find(function(err, exceptions) {
+    var inputDate = req.query.olderthan || new Date();
+    Exception.find({'date': { $lte: inputDate }},function(err, exceptions) {
         if (err)
             res.send(err);
         res.json(exceptions);
-    });
+    }).limit(parseInt(req.query.limit || '0'));
 });
 
 app.app.get('/exception/:exceptionId', function(req, res){
@@ -62,4 +65,68 @@ app.app.put('/exception/:exceptionId', function(req, res){
             res.json({ message: 'exception updated!' });
         });
     });
+});
+
+app.app.post('/exception/:exceptionId/comment', function(req, res){
+    Exception.findById(req.params.exceptionId, function(err, exception) {
+        if (err || !exception){
+            res.json({ message: 'error' });
+            return;
+        }
+
+        var comment = new Comment();
+        comment.body = req.body.body;
+        comment.date = new Date();
+
+        exception.comments.push(comment);
+
+        // save the comment
+        exception.save(function(err) {
+            if (err)
+                res.send(err);
+            res.json({ message: 'comment posted!' });
+        });
+    });
+});
+
+app.app.delete('/exception/:exceptionId/comment/:commentId', function(req, res){
+    Exception.findById(req.params.exceptionId, function(err, exception) {
+            if (err || !exception){
+                res.json({ message: 'error' });
+                return;
+            }
+            for(var i=0;i<exception.comments.length;i++){
+                if(exception.comments[i].id == req.params.commentId){
+                    exception.comments.splice(i,1);
+                }
+            }
+            // delete the comment
+            exception.save(function(err) {
+                if (err)
+                    res.send(err);
+                res.json({ message: 'comment deleted!' });
+            });
+        }
+    );
+});
+
+app.app.put('/exception/:exceptionId/comment/:commentId', function(req, res){
+    Exception.findById(req.params.exceptionId, function(err, exception) {
+            if (err || !exception){
+                res.json({ message: 'error' });
+                return;
+            }
+            for(var i=0;i<exception.comments.length;i++){
+                if(exception.comments[i].id == req.params.commentId){
+                    exception.comments[i].body = req.body.body;
+                }
+            }
+            // update the comment
+            exception.save(function(err) {
+                if (err)
+                    res.send(err);
+                res.json({ message: 'comment updated!' });
+            });
+        }
+    );
 });
