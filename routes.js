@@ -29,7 +29,8 @@ app.app.get('/exception', function(req, res){
         if (err)
             res.send(err);
         res.json(exceptions);
-    }).limit(parseInt(req.query.limit || '0'));
+    }).limit(parseInt(req.query.limit || '0'))
+    .sort([['date', -1]]);
 });
 
 app.app.get('/exception/:exceptionId', function(req, res){
