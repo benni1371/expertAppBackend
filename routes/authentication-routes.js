@@ -5,7 +5,7 @@ var mongoose = require('mongoose'),
   User = require("../models/user");
 var config = require('../config/database');
 
-app.post('/register',function(req, res) {
+app.post('/signup',function(req, res) {
     //console.log(req.body);
   var newUser = new User(req.body);
   newUser.hash_password = bcrypt.hashSync(req.body.password, 10);
@@ -22,7 +22,7 @@ app.post('/register',function(req, res) {
   });
 });
 
-app.post('/sign_in', function(req, res) {
+app.post('/signin', function(req, res) {
   User.findOne({
     username: req.body.username
   }, function(err, user) {
@@ -30,6 +30,6 @@ app.post('/sign_in', function(req, res) {
     if (!user || !user.comparePassword(req.body.password)) {
       return res.status(401).json({ message: 'Authentication failed. Invalid user or password.' });
     }
-    return res.json({ token: 'JWT ' + jwt.sign({ username: user.username, _id: user._id }, config.secret) });
+    return res.json({ token: jwt.sign({ username: user.username, _id: user._id }, config.secret) });
   });
 });
