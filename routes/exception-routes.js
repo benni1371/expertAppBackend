@@ -3,7 +3,7 @@ var io = require('../app').io;
 var Exception = require('../models/schemas').exceptionSchema;
 
 app.get('/', function(req, res){
- res.send("Hello World-changed-1");
+    res.send(req.user);
 });
 
 app.post('/exception', function(req, res){
@@ -11,6 +11,7 @@ app.post('/exception', function(req, res){
     exception.name = req.body.name;
     exception.description = req.body.description;
     exception.date = new Date();
+    exception.author = req.user.username;
 
     io.sockets.emit('exception',exception);
 
