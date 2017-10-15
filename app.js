@@ -6,31 +6,16 @@ var bodyParser = require('body-parser');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 module.exports.io = io;
-var config = require('./config/database');
-var jsonwebtoken = require("jsonwebtoken");
+var jwtauth = require("./security/jwt-auth");
+
+//socket io middleware
+io.use(jwtauth.authenticatesocketio);
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(function(req, res, next) {
-  if (req.headers && req.headers.authorization && req.headers.authorization.split(' ')[0] === 'JWT') {
-    jsonwebtoken.verify(req.headers.authorization.split(' ')[1], config.secret, function(err, decode) {
-      if (err) req.user = undefined;
-      req.user = decode;
-      next();
-    });
-  } else {
-    req.user = undefined;
-    next();
-  }
-});
-app.use('/exception', function (req, res, next) {
-  if(req.user){
-    next();
-  } else {
-    res.status(401).json({ message: 'Authentication failed. Invalid user or password.' });
-  }
-});
+app.use(jwtauth.authenticate);
+app.use('/exception', jwtauth.authenticateapi);
 
 //DB setup
 var uristring =
@@ -49,9 +34,12 @@ require('./routes/authentication-routes');
 require('./routes/comment-routes');
 require('./routes/exception-routes');
 
-//socket io
+//socket io, only for authenticated users
 io.on('connection', function(socket){
-  console.log('a user connected');
+  socket.emit('success', {
+    message: 'success logged in!',
+    user: socket.request.user
+  });
 });
 
 http.listen(process.env.PORT || 3000, function(){
