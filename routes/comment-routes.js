@@ -1,7 +1,7 @@
-var app = require('./app').app;
-var io = require('./app').io;
-var Exception = require('./schemas').exceptionSchema;
-var Comment = require('./schemas').commentSchema;
+var app = require('../app').app;
+var io = require('../app').io;
+var Exception = require('../models/schemas').exceptionSchema;
+var Comment = require('../models/schemas').commentSchema;
 
 app.post('/exception/:exceptionId/comment', function(req, res){
     Exception.findById(req.params.exceptionId, function(err, exception) {
