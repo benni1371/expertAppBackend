@@ -1,6 +1,6 @@
-var app = require('./app').app;
-var io = require('./app').io;
-var Exception = require('./schemas').exceptionSchema;
+var app = require('../app').app;
+var io = require('../app').io;
+var Exception = require('../models/schemas').exceptionSchema;
 
 app.get('/', function(req, res){
  res.send("Hello World-changed-1");
