@@ -6,10 +6,8 @@ var bodyParser = require('body-parser');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 module.exports.io = io;
-console.log('dev');
 
-// configure app to use bodyParser()
-// this will let us get the data from a POST
+// middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -26,7 +24,8 @@ mongoose.connect(uristring, {
 });
 
 //defines the routes
-require('./routes');
+require('./comment-routes');
+require('./exception-routes');
 
 //socket io
 io.on('connection', function(socket){
