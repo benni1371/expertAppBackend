@@ -24,8 +24,8 @@ mongoose.connect(uristring, {
 });
 
 //defines the routes
-require('./comment-routes');
-require('./exception-routes');
+require('./routes/comment-routes');
+require('./routes/exception-routes');
 
 //socket io
 io.on('connection', function(socket){
