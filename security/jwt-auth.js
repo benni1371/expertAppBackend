@@ -19,7 +19,10 @@ module.exports.authenticatesocketio = function(socket, next){
 };
 
 module.exports.authenticate = function(req, res, next) {
-  if (req.headers && req.headers.authorization) {
+  if(req.method == 'OPTIONS'){
+    req.user = {'username':'optionsuser'};
+    next();
+  } else if (req.headers && req.headers.authorization) {
     jsonwebtoken.verify(req.headers.authorization, config.secret, function(err, decode) {
       if (err) req.user = undefined;
       req.user = decode;
