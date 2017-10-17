@@ -6,6 +6,10 @@ var bodyParser = require('body-parser');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 module.exports.io = io;
+var jwtauth = require("./security/jwt-auth");
+
+//socket io middleware
+io.use(jwtauth.authenticatesocketio);
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -15,6 +19,8 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
+app.use(jwtauth.authenticate);
+app.use('/exception', jwtauth.authenticateapi);
 
 //DB setup
 var uristring =
@@ -29,12 +35,16 @@ mongoose.connect(uristring, {
 });
 
 //defines the routes
+require('./routes/authentication-routes');
 require('./routes/comment-routes');
 require('./routes/exception-routes');
 
-//socket io
+//socket io, only for authenticated users
 io.on('connection', function(socket){
-  console.log('a user connected');
+  socket.emit('success', {
+    message: 'success logged in!',
+    user: socket.request.user
+  });
 });
 
 http.listen(process.env.PORT || 3000, function(){

@@ -13,6 +13,7 @@ app.post('/exception/:exceptionId/comment', function(req, res){
         var comment = new Comment();
         comment.body = req.body.body;
         comment.date = new Date();
+        comment.author = req.user.username;
 
         exception.comments.push(comment);
 
