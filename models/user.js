@@ -6,12 +6,14 @@ var UserSchema = new Schema({
   username: {
         type: String,
         unique: true,
-        required: true
+        required: true,
+        unique: true
     },
   hash_password: {
         type: String,
         required: true
-    }
+    },
+    pictureurl: String
 });
 
 UserSchema.methods.comparePassword = function(password) {

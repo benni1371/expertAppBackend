@@ -7,6 +7,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 module.exports.io = io;
 var jwtauth = require("./security/jwt-auth");
+var _ = require('underscore');
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: true }));
