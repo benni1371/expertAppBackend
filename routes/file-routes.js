@@ -43,7 +43,7 @@ app.post('/api/exception/:exceptionId/picture', multiparty, function(req, res){
    });
 });
 
-app.post('/user/:userName/picture', multiparty, function(req, res){
+app.post('/api/user/:userName/picture', multiparty, function(req, res){
   console.log(req.files.file.path);
  var db = mongoose.connection.db;
  var mongoDriver = mongoose.mongo;
@@ -96,7 +96,7 @@ app.get('/api/picture/:pictureId', function(req, res) {
   }); 
 });
 
-app.get('/api/user/:userName/picture', multiparty, function(req, res){
+app.get('/user/:userName/picture', multiparty, function(req, res){
   User.findOne({ 'username' :  req.params.userName },function(err, user){
       if (err || !user){
           res.json({ message: 'error' });
