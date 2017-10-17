@@ -1,5 +1,16 @@
 var config = require('../config/database');
 var jsonwebtoken = require("jsonwebtoken");
+var _ = require('underscore');
+var io = require('../app').io;
+
+_.each(io.nsps, function(nsp){
+  nsp.on('connect', function(socket){
+    if (!socket.auth) {
+      console.log("removing socket from", nsp.name)
+      delete nsp.connected[socket.id];
+    }
+  });
+});
 
 module.exports.authenticatesocketio = function(socket){
   socket.auth = false;
@@ -13,6 +24,12 @@ module.exports.authenticatesocketio = function(socket){
             socket.request.user = decode;
             console.log("Authenticated socket ", socket.id);
             socket.auth = true;
+            _.each(io.nsps, function(nsp) {
+              if(_.findWhere(nsp.sockets, {id: socket.id})) {
+                console.log("restoring socket to", nsp.name);
+                nsp.connected[socket.id] = socket;
+              }
+            });
           }
         });
       }
@@ -23,7 +40,7 @@ module.exports.authenticatesocketio = function(socket){
       console.log("Disconnecting socket ", socket.id);
       socket.disconnect('unauthorized');
     }
-  }, 500);
+  }, 1000);
 };
 
 module.exports.authenticate = function(req, res, next) {
