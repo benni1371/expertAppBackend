@@ -12,6 +12,7 @@ var jwtauth = require("./security/jwt-auth");
 io.use(jwtauth.authenticatesocketio);
 
 // middleware
+app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(function(req, res, next) {
@@ -35,6 +36,8 @@ mongoose.connect(uristring, {
 });
 
 //defines the routes
+//TODO: change to exception/id/picture
+require('./routes/file-routes');
 require('./routes/authentication-routes');
 require('./routes/comment-routes');
 require('./routes/exception-routes');
