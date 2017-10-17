@@ -22,6 +22,7 @@ app.use(function(req, res, next) {
 app.use(jwtauth.authenticate);
 app.use('/exception', jwtauth.authenticateapi);
 
+
 //DB setup
 var uristring =
     process.env.MONGODB_URI ||
