@@ -21,7 +21,7 @@ app.use(function(req, res, next) {
   next();
 });
 app.use(jwtauth.authenticate);
-app.use('/exception', jwtauth.authenticateapi);
+app.use('/api', jwtauth.authenticateapi);
 
 //DB setup
 var uristring =
