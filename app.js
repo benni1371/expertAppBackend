@@ -8,11 +8,7 @@ var io = require('socket.io')(http);
 module.exports.io = io;
 var jwtauth = require("./security/jwt-auth");
 
-//socket io middleware
-io.use(jwtauth.authenticatesocketio);
-
 // middleware
-app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(function(req, res, next) {
@@ -45,10 +41,7 @@ require('./routes/exception-routes');
 
 //socket io, only for authenticated users
 io.on('connection', function(socket){
-  socket.emit('success', {
-    message: 'success logged in!',
-    user: socket.request.user
-  });
+  jwtauth.authenticatesocketio(socket)
 });
 
 http.listen(process.env.PORT || 3000, function(){

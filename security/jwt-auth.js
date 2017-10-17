@@ -1,21 +1,29 @@
 var config = require('../config/database');
 var jsonwebtoken = require("jsonwebtoken");
 
-module.exports.authenticatesocketio = function(socket, next){
-  if(socket.request._query.auth_token){
-    jsonwebtoken.verify(socket.request._query.auth_token, config.secret, function(err, decode) {
-      if (err) {
-        socket.request.user = undefined;
-        next(new Error('JWT is invalid.'));
-      } else {
-        socket.request.user = decode;
-        next();
+module.exports.authenticatesocketio = function(socket){
+  socket.auth = false;
+  socket.on('authenticate', function(data){
+    //check the auth data sent by the client
+      if(data.token){
+        jsonwebtoken.verify(data.token, config.secret, function(err, decode) {
+          if (err) {
+            socket.request.user = undefined;
+          } else {
+            socket.request.user = decode;
+            console.log("Authenticated socket ", socket.id);
+            socket.auth = true;
+          }
+        });
       }
-    });
-  } else {
-    socket.request.user = undefined;
-    next(new Error('JWT is invalid.'));
-  }
+  });
+  setTimeout(function(){
+    //If the socket didn't authenticate, disconnect it
+    if (!socket.auth) {
+      console.log("Disconnecting socket ", socket.id);
+      socket.disconnect('unauthorized');
+    }
+  }, 500);
 };
 
 module.exports.authenticate = function(req, res, next) {
