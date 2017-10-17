@@ -1,39 +1,39 @@
-var cloudinary = require('cloudinary');
 var app = require('../app').app;
-var config = require('../config/database');
-var multer = require('multer');
 
-var upload = multer({ dest : '../public/uploads'});
-var type = upload.single('recfile');
+var multiparty = require('connect-multiparty')();
+var fs = require('fs');
+var mongoose = require('mongoose');
+var Gridfs = require('gridfs-stream');
 
-cloudinary.config({ 
-    cloud_name: config.cloud_name, 
-    api_key: config.api_key, 
-    api_secret: config.api_secret
+app.post('/testupload1', multiparty, function(req, res){
+    console.log(req.files);
 });
 
-/*app.post('/upload', type, function (req,res) {
-    res.send('File uploaded');
-    console.log(req.file.path);
-    cloudinary.uploader.upload(req.file.path, function(result) { 
-        console.log(result);
-    });
-});*/
-
-app.post('/exception/:exceptionId/picture', type, function(req, res){
-    Exception.findById(req.params.exceptionId, function(err, exception) {
-        if (err || !exception){
-            res.json({ message: 'error' });
-            return;
-        }
-
-        cloudinary.uploader.upload(req.file.path, function(result) { 
-            exception.pic_url = result.url;
-            exception.save(function(err) {
-                if (err)
-                    res.send(err);
-                res.json({ message: 'picture uploaded' });
-            });
-        });
-    });
+app.post('/exception/upload/:id', multiparty, function(req, res){
+    console.log(req.files.file.path);
+   var db = mongoose.connection.db;
+   var mongoDriver = mongoose.mongo;
+   var gfs = new Gridfs(db, mongoDriver);
+   var writestream = gfs.createWriteStream({
+     filename: req.files.file.name,
+     mode: 'w',
+     content_type: req.files.file.mimetype,
+     metadata: req.body
+   });
+   fs.createReadStream(req.files.file.path).pipe(writestream);
+   console.log(req.files.file.path);
+   writestream.on('close', function(file) {
+      /*User.findById(req.params.id, function(err, user) {
+        // handle error
+        user.file = file._id;
+        user.save(function(err, updatedUser) {
+          // handle error
+          return res.json(200, updatedUser)
+        })
+      });*/
+      fs.unlink(req.files.file.path, function(err) {
+        // handle error
+        console.log('success!')
+      });
+   });
 });
