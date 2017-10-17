@@ -3,7 +3,7 @@ var io = require('../app').io;
 var Exception = require('../models/schemas').exceptionSchema;
 var Comment = require('../models/schemas').commentSchema;
 
-app.post('/exception/:exceptionId/comment', function(req, res){
+app.post('/api/exception/:exceptionId/comment', function(req, res){
     Exception.findById(req.params.exceptionId, function(err, exception) {
         if (err || !exception){
             res.json({ message: 'error' });
@@ -29,7 +29,7 @@ app.post('/exception/:exceptionId/comment', function(req, res){
     });
 });
 
-app.delete('/exception/:exceptionId/comment/:commentId', function(req, res){
+app.delete('/api/exception/:exceptionId/comment/:commentId', function(req, res){
     Exception.findById(req.params.exceptionId, function(err, exception) {
             if (err || !exception){
                 res.json({ message: 'error' });
@@ -50,7 +50,7 @@ app.delete('/exception/:exceptionId/comment/:commentId', function(req, res){
     );
 });
 
-app.put('/exception/:exceptionId/comment/:commentId', function(req, res){
+app.put('/api/exception/:exceptionId/comment/:commentId', function(req, res){
     Exception.findById(req.params.exceptionId, function(err, exception) {
             if (err || !exception){
                 res.json({ message: 'error' });

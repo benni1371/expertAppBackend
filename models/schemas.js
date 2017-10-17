@@ -11,6 +11,7 @@ module.exports.commentSchema = mongoose.model('Comment', commentSchema);
 
 var exceptionSchema   = new Schema({
     name: String,
+    pictureurl: String,
     description: String,
     date  : Date,
     author : String,

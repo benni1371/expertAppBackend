@@ -19,4 +19,6 @@ GET  /exception/:exceptionId/comment
 POST /exception/:exceptionId/comment
 PUT /exception/:exceptionId/comment
 
+To upload picture
+curl --form "recfile=expert.jpg" --header "Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbnJpayIsIl9pZCI6IjU5ZTU2NGVhN2I0Y2ViMDAxZjM1MDE1MCIsImlhdCI6MTUwODIwNTgxOH0.RuBLrrXjfCXM5JDgTGIUEH953V0F7HHJ2TzDuX02zGE" -X POST http://localhost:3000/exception/59e58d4042b4cf57a5336609/picture
 
