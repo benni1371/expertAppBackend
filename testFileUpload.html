@@ -19,21 +19,17 @@
    
     $('#uploadForm').submit(function() {
         $("#status").empty().text("File is uploading...");
-        /*$.ajaxSetup({
-            headers: { 'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbnJpayIsIl9pZCI6IjU5ZTU2NGVhN2I0Y2ViMDAxZjM1MDE1MCIsImlhdCI6MTUwODIwNTgxOH0.RuBLrrXjfCXM5JDgTGIUEH953V0F7HHJ2TzDuX02zGE' }
-        });*/
         $(this).ajaxSubmit({
             headers: {  
                 'authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbnJpayIsIl9pZCI6IjU5ZTU2NGVhN2I0Y2ViMDAxZjM1MDE1MCIsImlhdCI6MTUwODIwNTgxOH0.RuBLrrXjfCXM5JDgTGIUEH953V0F7HHJ2TzDuX02zGE'
             }, 
-           error: function(xhr) {
-                   status('Error: ' + xhr.status);
-           },
-   
-           success: function(response) {
-                   console.log(response)
-                   $("#status").empty().text(response);
-           }
+            error: function(xhr) {
+                status('Error: ' + xhr.status);
+            },
+            success: function(response) {
+                console.log(response)
+                $("#status").empty().text(response);
+            }
         });
    
         return false;
