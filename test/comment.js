@@ -130,7 +130,7 @@ describe('Comment routes', () => {
         });
     });
 
-    /*describe('PUT /api/exception/:exceptionId/comment/:commentId with wrong Id', () => {
+    describe('PUT /api/exception/:exceptionId/comment/:commentId with wrong comment Id', () => {
         it('it sould update a comment', (done) => {
             var newComment = {content: 'myNewBody'};
             chai.request(app)
@@ -138,12 +138,66 @@ describe('Comment routes', () => {
                 .set('authorization', authTokenExample)
                 .send(newComment)
                 .end((err, res) => {
-                    res.should.have.status(200);
-                    Exception.findById(exceptionId, function(err, exception){
-                        expect(exception.comments[0].content).to.equal(newComment.content);
-                        done();
-                    });
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Error: commentId not found');
+                    done();
                 });
         });
-    });*/
+    });
+
+    describe('PUT /api/exception/:exceptionId/comment/:commentId with wrong exception Id', () => {
+        it('it sould update a comment', (done) => {
+            var newComment = {content: 'myNewBody'};
+            chai.request(app)
+                .put('/api/exception/n0t3xistingpr0bably/comment/n0t3xistingpr0bably')
+                .set('authorization', authTokenExample)
+                .send(newComment)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Error: exceptionId not found');
+                    done();
+                });
+        });
+    });
+
+    describe('POST /api/exception/:exceptionId/comment with wrong exception Id', () => {
+        it('it sould be rejected', (done) => {
+            var newComment = {content: 'myNewBody'};
+            chai.request(app)
+                .post('/api/exception/n0t3xistingpr0bably/comment')
+                .set('authorization', authTokenExample)
+                .send(newComment)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Error: exceptionId not found');
+                    done();
+                });
+        });
+    });
+
+    describe('DELETE /api/exception/:exceptionId/comment/:commentId  with wrong comment Id', () => {
+        it('it sould delete a comment', (done) => {
+            chai.request(app)
+                .delete('/api/exception/'+exceptionId+'/comment/n0t3xistingpr0bably')
+                .set('authorization', authTokenExample)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Error: commentId not found');
+                    done();
+                });
+        });
+    });
+
+    describe('DELETE /api/exception/:exceptionId/comment/:commentId  with wrong exception Id', () => {
+        it('it sould delete a comment', (done) => {
+            chai.request(app)
+                .delete('/api/exception/n0t3xistingpr0bably/comment/n0t3xistingpr0bably')
+                .set('authorization', authTokenExample)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Error: exceptionId not found');
+                    done();
+                });
+        });
+    });
 });

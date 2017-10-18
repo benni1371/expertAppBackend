@@ -8,10 +8,8 @@ app.post('/api/exception/:exceptionId/comment', function(req, res){
         return res.status(400).send({message: 'Please provide content'});
 
     Exception.findById(req.params.exceptionId, function(err, exception) {
-        if (err || !exception){
-            res.json({ message: 'error' });
-            return;
-        }
+        if (err || !exception)
+            return res.status(400).send({message: 'Error: exceptionId not found'});
 
         var comment = new Comment();
         comment.content = req.body.content;
@@ -26,7 +24,7 @@ app.post('/api/exception/:exceptionId/comment', function(req, res){
         // save the comment
         exception.save(function(err) {
             if (err)
-                res.send(err);
+                return res.status(400).send(error);
             res.json({ message: 'comment posted!' });
         });
     });
@@ -34,15 +32,19 @@ app.post('/api/exception/:exceptionId/comment', function(req, res){
 
 app.delete('/api/exception/:exceptionId/comment/:commentId', function(req, res){
     Exception.findById(req.params.exceptionId, function(err, exception) {
-            if (err || !exception){
-                res.json({ message: 'error' });
-                return;
-            }
+            if (err || !exception)
+                return res.status(400).send({message: 'Error: exceptionId not found'});
+            
+            var found = false;
             for(var i=0;i<exception.comments.length;i++){
                 if(exception.comments[i].id == req.params.commentId){
                     exception.comments.splice(i,1);
+                    found = true;
                 }
             }
+            if(!found)
+                return res.status(400).send({message: 'Error: commentId not found'});
+
             // delete the comment
             exception.save(function(err) {
                 if (err)
@@ -58,21 +60,23 @@ app.put('/api/exception/:exceptionId/comment/:commentId', function(req, res){
         return res.status(400).send({message: 'Please provide content'});
 
     Exception.findById(req.params.exceptionId, function(err, exception) {
-            if (err || !exception){
-                res.json({ message: 'error' });
-                return;
-            }
+            if (err || !exception)
+                return res.status(400).send({message: 'Error: exceptionId not found'});
+            
+            var found = false;
             for(var i=0;i<exception.comments.length;i++){
                 if(exception.comments[i].id == req.params.commentId){
                     exception.comments[i].content = req.body.content;
+                    found = true;
                 }
             }
+            if(!found)
+                return res.status(400).send({message: 'Error: commentId not found'});
             // update the comment
             exception.save(function(err) {
                 if (err)
                     res.send(err);
                 res.json({ message: 'comment updated!' });
             });
-        }
-    );
+    });
 });
