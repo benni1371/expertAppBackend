@@ -188,4 +188,22 @@ describe('Exception routes', () => {
             });
         });
     });
+
+    describe('PUT /api/exception/:exceptionId with wrong Id', () => {
+        it('it should be rejected', (done) => {
+            var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z' });
+            var updatedException = new Exception({ name:'testException', description:'my updated Description' });
+            exception.save((err, exception) => {
+                chai.request(app)
+                .put('/api/exception/n0t3xistingpr0bably')
+                .set('authorization', authTokenExample)
+                .send(updatedException)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Error: Id not found');
+                    done();
+                });
+            });
+        });
+    });
 });
