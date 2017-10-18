@@ -34,7 +34,6 @@ mongoose.connect(uristring, {
 });
 
 //defines the routes
-//TODO: change to exception/id/picture
 require('./routes/file-routes');
 require('./routes/authentication-routes');
 require('./routes/comment-routes');
