@@ -4,6 +4,9 @@ var Exception = require('../models/schemas').exceptionSchema;
 var Comment = require('../models/schemas').commentSchema;
 
 app.post('/api/exception/:exceptionId/comment', function(req, res){
+    if(!req.body.content)
+        return res.status(400).send({message: 'Please provide content'});
+
     Exception.findById(req.params.exceptionId, function(err, exception) {
         if (err || !exception){
             res.json({ message: 'error' });
@@ -11,7 +14,7 @@ app.post('/api/exception/:exceptionId/comment', function(req, res){
         }
 
         var comment = new Comment();
-        comment.body = req.body.body;
+        comment.content = req.body.content;
         comment.date = new Date();
         comment.author = req.user.username;
 
@@ -51,6 +54,9 @@ app.delete('/api/exception/:exceptionId/comment/:commentId', function(req, res){
 });
 
 app.put('/api/exception/:exceptionId/comment/:commentId', function(req, res){
+    if(!req.body.content)
+        return res.status(400).send({message: 'Please provide content'});
+
     Exception.findById(req.params.exceptionId, function(err, exception) {
             if (err || !exception){
                 res.json({ message: 'error' });
@@ -58,7 +64,7 @@ app.put('/api/exception/:exceptionId/comment/:commentId', function(req, res){
             }
             for(var i=0;i<exception.comments.length;i++){
                 if(exception.comments[i].id == req.params.commentId){
-                    exception.comments[i].body = req.body.body;
+                    exception.comments[i].content = req.body.content;
                 }
             }
             // update the comment

@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 module.exports.app = app;
 var mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
 var bodyParser = require('body-parser');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -30,11 +31,11 @@ var uristring =
 mongoose.connect(uristring, {
   useMongoClient: true
 }).then(function(){
-	console.log('Connected to Mongo');
+  if(process.env.NODE_ENV != 'test')
+	  console.log('Connected to Mongo');
 });
 
 //defines the routes
-//TODO: change to exception/id/picture
 require('./routes/file-routes');
 require('./routes/authentication-routes');
 require('./routes/comment-routes');
@@ -46,5 +47,6 @@ io.on('connection', function(socket){
 });
 
 http.listen(process.env.PORT || 3000, function(){
- console.log('Example app listening on port 3000!');
+  if(process.env.NODE_ENV != 'test')
+    console.log('Listening on port 3000!');
 });

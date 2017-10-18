@@ -1,3 +1,4 @@
 module.exports = {
-  'secret':'%wCr5f1.q&H`]BZgBTEB'
+  'secret':'%wCr5f1.q&H`]BZgBTEB',
+  'authTokenExample':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbnJpayIsIl9pZCI6IjU5ZTU2NGVhN2I0Y2ViMDAxZjM1MDE1MCIsImlhdCI6MTUwODIwNTgxOH0.RuBLrrXjfCXM5JDgTGIUEH953V0F7HHJ2TzDuX02zGE'
 };
