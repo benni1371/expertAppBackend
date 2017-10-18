@@ -23,9 +23,6 @@ describe('Exception routes', () => {
         });     
     });
 
-    /*
-    * Test GET /api/exception without Authorization Token
-    */
     describe('GET /api/exception without authorization token', () => {
         it('it sould be an unauthorized request', (done) => {
             chai.request(app)
@@ -37,9 +34,6 @@ describe('Exception routes', () => {
             });
     });
 
-    /*
-    * Test GET /api/exception
-    */
     describe('GET /api/exception', () => {
         it('it should GET all the exceptions', (done) => {
             chai.request(app)
@@ -54,9 +48,6 @@ describe('Exception routes', () => {
             });
     });
 
-    /*
-    * Test GET /api/exception/:exceptionId
-    */
     describe('GET /api/exception/:exceptionId', () => {
         it('it should GET a exception by the given id', (done) => {
             var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z' });
@@ -78,9 +69,6 @@ describe('Exception routes', () => {
         });
     });
 
-    /*
-    * Test POST /api/exception
-    */
     describe('POST /api/exception', () => {
         var exception = new Exception({ name:'testException', description:'myDescription' });
         it('it should POST an exception', (done) => {
@@ -102,9 +90,6 @@ describe('Exception routes', () => {
             });
     });
 
-    /*
-    * Test DELETE /api/exception/:exceptionId
-    */
     describe('DELETE /api/exception/:exceptionId', () => {
         it('it should delete a exception by the given id', (done) => {
             var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z' });
@@ -123,9 +108,6 @@ describe('Exception routes', () => {
         });
     });
 
-    /*
-    * Test PUT /api/exception/:exceptionId
-    */
     describe('PUT /api/exception/:exceptionId', () => {
         it('it should update an exception by the given id', (done) => {
             var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z' });
