@@ -6,7 +6,7 @@ var io     = require('socket.io-client');
 var Exception = require('../models/schemas').exceptionSchema;
 
 //provide an example JWT for test purpose
-var authTokenExample = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbnJpayIsIl9pZCI6IjU5ZTU2NGVhN2I0Y2ViMDAxZjM1MDE1MCIsImlhdCI6MTUwODIwNTgxOH0.RuBLrrXjfCXM5JDgTGIUEH953V0F7HHJ2TzDuX02zGE';
+var authTokenExample = require('../config/database').authTokenExample;
 var socketUrl = 'http://localhost:3000';
 
 //Require the dev-dependencies
@@ -19,13 +19,7 @@ chai.use(chaiHttp);
 describe('Socket.io tests', () => {
 
     var socket;
-
-    beforeEach((done) => { //Before each test we empty the database
-        Exception.remove({}, (err) => {
-            done();         
-        });
-    });
-    afterEach(function() { socket.close(); console.log("closed"); });
+    afterEach(function() { socket.close(); });
 
     describe('socket.io connect', () => {
         it('it should be able to connect and authenticate', (done) => {

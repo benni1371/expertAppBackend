@@ -5,7 +5,7 @@ var app = require('../app').app;
 var Exception = require('../models/schemas').exceptionSchema;
 
 //provide an example JWT for test purpose
-var authTokenExample = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbnJpayIsIl9pZCI6IjU5ZTU2NGVhN2I0Y2ViMDAxZjM1MDE1MCIsImlhdCI6MTUwODIwNTgxOH0.RuBLrrXjfCXM5JDgTGIUEH953V0F7HHJ2TzDuX02zGE';
+var authTokenExample = require('../config/database').authTokenExample;
 
 //Require the dev-dependencies
 var chai = require('chai');
@@ -115,9 +115,9 @@ describe('Exception routes', () => {
                 .end((err, res) => {
                     res.should.have.status(200);
                     Exception.count({name: 'testException'}, function(err, count) {
-                        expect(count).to.equal(1);
+                        expect(count).to.equal(0);
+                        done();
                     });
-                    done();
                 });
             });
         });
@@ -139,8 +139,8 @@ describe('Exception routes', () => {
                     res.should.have.status(200);
                     Exception.findById(exception.id, function(err, returnedException) {
                         expect(returnedException.description).to.equal(updatedException.description);
+                        done();
                     });
-                    done();
                 });
             });
         });
