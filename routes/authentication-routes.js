@@ -5,7 +5,7 @@ var mongoose = require('mongoose'),
   User = require("../models/user");
 var config = require('../config/database');
 
-app.post('/signup',function(req, res) {
+app.post('/api/signup',function(req, res) {
     //console.log(req.body);
   var newUser = new User(req.body);
   newUser.hash_password = bcrypt.hashSync(req.body.password, 10);

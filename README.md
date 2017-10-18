@@ -7,18 +7,21 @@ sudo npm start
 
 To use first request a user & sign in:
 
-curl -H "Content-Type: application/json" -X POST -d '{"username":"xyz","password":"xyz"}' http://localhost:3000/signup
 curl -H "Content-Type: application/json" -X POST -d '{"username":"xyz","password":"xyz"}' http://localhost:3000/signin
 
-Add the token to the authorization header and then you can use the api:
+Add the token to the authorization header and then you can use the /api routes:
 
-GET /exception
-POST /exception
-PUT /exception/:exceptionId
-GET  /exception/:exceptionId/comment
-POST /exception/:exceptionId/comment
-PUT /exception/:exceptionId/comment
+GET /api/exception
+POST /api/exception
+PUT /api/exception/:exceptionId
+GET  /api/exception/:exceptionId/comment
+POST /api/exception/:exceptionId/comment
+PUT /api/exception/:exceptionId/comment
+GET /user/:userName/picture
+GET /api/picture/:pictureId
+POST /api/signup
+POST /signin
 
-To upload picture
-curl --form "recfile=expert.jpg" --header "Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbnJpayIsIl9pZCI6IjU5ZTU2NGVhN2I0Y2ViMDAxZjM1MDE1MCIsImlhdCI6MTUwODIwNTgxOH0.RuBLrrXjfCXM5JDgTGIUEH953V0F7HHJ2TzDuX02zGE" -X POST http://localhost:3000/exception/59e58d4042b4cf57a5336609/picture
+To upload picture use: testFileUpload.html
+To test socket.io use: testSocketio.html
 
