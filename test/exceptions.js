@@ -14,8 +14,6 @@ var expect = require('chai').expect
 var should = chai.should();
 chai.use(chaiHttp);
 
-//TODO: Try some wrong IDs!
-
 describe('Exception routes', () => {
     beforeEach((done) => { //Before each test we empty the database
         Exception.remove({}, (err) => {
@@ -111,7 +109,7 @@ describe('Exception routes', () => {
     describe('PUT /api/exception/:exceptionId', () => {
         it('it should update an exception by the given id', (done) => {
             var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z' });
-            var updatedException = new Exception({ description:'my updated Description' });
+            var updatedException = new Exception({ name:'testException', description:'my updated Description' });
             exception.save((err, exception) => {
                 chai.request(app)
                 .put('/api/exception/' + exception.id)
@@ -123,6 +121,69 @@ describe('Exception routes', () => {
                         expect(returnedException.description).to.equal(updatedException.description);
                         done();
                     });
+                });
+            });
+        });
+    });
+
+    describe('POST /api/exception without Parameters', () => {
+        it('it should reject the request', (done) => {
+            chai.request(app)
+                .post('/api/exception')
+                .set('authorization', authTokenExample)
+                .send({})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Please provide name and description');
+                    done();
+                });
+            });
+    });
+
+    describe('PUT /api/exception/:exceptionId without Parameters', () => {
+        it('it should reject the request', (done) => {
+            var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z' });
+            exception.save((err, exception) => {
+                chai.request(app)
+                .put('/api/exception/' + exception.id)
+                .set('authorization', authTokenExample)
+                .send({})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Please provide name and description');
+                    done();
+                });
+            });
+        });
+    });
+
+    describe('GET /api/exception/:exceptionId with wrong Id', () => {
+        it('it should be rejected', (done) => {
+            var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z' });
+            exception.save((err, exception) => {
+                chai.request(app)
+                .get('/api/exception/n0t3xistingpr0bably')
+                .set('authorization', authTokenExample)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Error: Id not found');
+                    done();
+                });
+            });
+        });
+    });
+
+    describe('DELETE /api/exception/:exceptionId with wrong Id', () => {
+        it('it should be rejected', (done) => {
+            var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z' });
+            exception.save((err, exception) => {
+                chai.request(app)
+                .delete('/api/exception/n0t3xistingpr0bably')
+                .set('authorization', authTokenExample)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Error: Id not found');
+                    done();
                 });
             });
         });

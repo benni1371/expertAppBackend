@@ -29,7 +29,7 @@ describe('Comment routes', () => {
                 author:'henrik',
                 date: '2017-10-18T16:45:06.969Z',
                 comments: [
-                    { body: 'body', author: 'henrik', date: '2017-10-18T16:45:06.969Z'}
+                    { content: 'body', author: 'henrik', date: '2017-10-18T16:45:06.969Z'}
                 ]
             });
             exception.save((err, exception) => {
@@ -42,7 +42,7 @@ describe('Comment routes', () => {
 
     describe('POST /api/exception/:exceptionId/comment without Authorization', () => {
         it('it sould be rejected', (done) => {
-            var comment = {body: 'myBody'};
+            var comment = {content: 'myBody'};
             chai.request(app)
                 .post('/api/exception/'+exceptionId+'/comment')
                 .send(comment)
@@ -55,7 +55,7 @@ describe('Comment routes', () => {
 
     describe('POST /api/exception/:exceptionId/comment', () => {
         it('it sould poste a comment', (done) => {
-            var comment = {body: 'myBody'};
+            var comment = {content: 'myBody'};
             chai.request(app)
                 .post('/api/exception/'+exceptionId+'/comment')
                 .set('authorization', authTokenExample)
@@ -70,7 +70,7 @@ describe('Comment routes', () => {
         });
     });
 
-    describe('DELETE /api/exception/:exceptionId/comment', () => {
+    describe('DELETE /api/exception/:exceptionId/comment/:commentId', () => {
         it('it sould delete a comment', (done) => {
             chai.request(app)
                 .delete('/api/exception/'+exceptionId+'/comment/'+commentId)
@@ -85,9 +85,9 @@ describe('Comment routes', () => {
         });
     });
 
-    describe('PUT /api/exception/:exceptionId/comment', () => {
+    describe('PUT /api/exception/:exceptionId/comment/:commentId', () => {
         it('it sould update a comment', (done) => {
-            var newComment = {body: 'myNewBody'};
+            var newComment = {content: 'myNewBody'};
             chai.request(app)
                 .put('/api/exception/'+exceptionId+'/comment/'+commentId)
                 .set('authorization', authTokenExample)
@@ -95,10 +95,55 @@ describe('Comment routes', () => {
                 .end((err, res) => {
                     res.should.have.status(200);
                     Exception.findById(exceptionId, function(err, exception){
-                        expect(exception.comments[0].body).to.equal(newComment.body);
+                        expect(exception.comments[0].content).to.equal(newComment.content);
                         done();
                     });
                 });
         });
     });
+
+    describe('POST /api/exception/:exceptionId/comment without Parameters', () => {
+        it('it sould be rejected', (done) => {
+            chai.request(app)
+                .post('/api/exception/'+exceptionId+'/comment')
+                .set('authorization', authTokenExample)
+                .send({})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Please provide content');
+                    done();
+                });
+        });
+    });
+
+    describe('PUT /api/exception/:exceptionId/comment/:commentId without Parameters', () => {
+        it('it sould update a comment', (done) => {
+            chai.request(app)
+                .put('/api/exception/'+exceptionId+'/comment/'+commentId)
+                .set('authorization', authTokenExample)
+                .send({})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Please provide content');
+                    done();
+                });
+        });
+    });
+
+    /*describe('PUT /api/exception/:exceptionId/comment/:commentId with wrong Id', () => {
+        it('it sould update a comment', (done) => {
+            var newComment = {content: 'myNewBody'};
+            chai.request(app)
+                .put('/api/exception/'+exceptionId+'/comment/n0t3xistingpr0bably')
+                .set('authorization', authTokenExample)
+                .send(newComment)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    Exception.findById(exceptionId, function(err, exception){
+                        expect(exception.comments[0].content).to.equal(newComment.content);
+                        done();
+                    });
+                });
+        });
+    });*/
 });
