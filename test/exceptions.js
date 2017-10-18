@@ -5,7 +5,7 @@ var app = require('../app').app;
 var Exception = require('../models/schemas').exceptionSchema;
 
 //provide an example JWT for test purpose
-var auth_token_example = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbnJpayIsIl9pZCI6IjU5ZTU2NGVhN2I0Y2ViMDAxZjM1MDE1MCIsImlhdCI6MTUwODIwNTgxOH0.RuBLrrXjfCXM5JDgTGIUEH953V0F7HHJ2TzDuX02zGE';
+var authTokenExample = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbnJpayIsIl9pZCI6IjU5ZTU2NGVhN2I0Y2ViMDAxZjM1MDE1MCIsImlhdCI6MTUwODIwNTgxOH0.RuBLrrXjfCXM5JDgTGIUEH953V0F7HHJ2TzDuX02zGE';
 
 //Require the dev-dependencies
 var chai = require('chai');
@@ -13,6 +13,8 @@ var chaiHttp = require('chai-http');
 var expect = require('chai').expect
 var should = chai.should();
 chai.use(chaiHttp);
+
+//TODO: Try some wrong IDs!
 
 describe('Exception routes', () => {
     beforeEach((done) => { //Before each test we empty the database
@@ -42,7 +44,7 @@ describe('Exception routes', () => {
         it('it should GET all the exceptions', (done) => {
             chai.request(app)
                 .get('/api/exception')
-                .set('authorization', auth_token_example)
+                .set('authorization', authTokenExample)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
@@ -61,7 +63,7 @@ describe('Exception routes', () => {
             exception.save((err, exception) => {
                 chai.request(app)
                 .get('/api/exception/' + exception.id)
-                .set('authorization', auth_token_example)
+                .set('authorization', authTokenExample)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('object');
@@ -84,7 +86,7 @@ describe('Exception routes', () => {
         it('it should POST an exception', (done) => {
             chai.request(app)
                 .post('/api/exception')
-                .set('authorization', auth_token_example)
+                .set('authorization', authTokenExample)
                 .send(exception)
                 .end((err, res) => {
                     res.should.have.status(200);
@@ -109,7 +111,7 @@ describe('Exception routes', () => {
             exception.save((err, exception) => {
                 chai.request(app)
                 .delete('/api/exception/' + exception.id)
-                .set('authorization', auth_token_example)
+                .set('authorization', authTokenExample)
                 .end((err, res) => {
                     res.should.have.status(200);
                     Exception.count({name: 'testException'}, function(err, count) {
@@ -131,7 +133,7 @@ describe('Exception routes', () => {
             exception.save((err, exception) => {
                 chai.request(app)
                 .put('/api/exception/' + exception.id)
-                .set('authorization', auth_token_example)
+                .set('authorization', authTokenExample)
                 .send(updatedException)
                 .end((err, res) => {
                     res.should.have.status(200);
