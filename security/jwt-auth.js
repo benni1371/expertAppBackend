@@ -6,7 +6,7 @@ var io = require('../app').io;
 _.each(io.nsps, function(nsp){
   nsp.on('connect', function(socket){
     if (!socket.auth) {
-      console.log("removing socket from", nsp.name)
+      //console.log("removing socket from", nsp.name)
       delete nsp.connected[socket.id];
     }
   });
@@ -22,14 +22,15 @@ module.exports.authenticatesocketio = function(socket){
             socket.request.user = undefined;
           } else {
             socket.request.user = decode;
-            console.log("Authenticated socket ", socket.id);
+            //console.log("Authenticated socket ", socket.id);
             socket.auth = true;
             _.each(io.nsps, function(nsp) {
               if(_.findWhere(nsp.sockets, {id: socket.id})) {
-                console.log("restoring socket to", nsp.name);
+                //console.log("restoring socket to", nsp.name);
                 nsp.connected[socket.id] = socket;
               }
             });
+            socket.emit('authenticated');
           }
         });
       }
@@ -37,7 +38,7 @@ module.exports.authenticatesocketio = function(socket){
   setTimeout(function(){
     //If the socket didn't authenticate, disconnect it
     if (!socket.auth) {
-      console.log("Disconnecting socket ", socket.id);
+      //console.log("Disconnecting socket ", socket.id);
       socket.disconnect('unauthorized');
     }
   }, 1000);

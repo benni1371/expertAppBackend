@@ -6,10 +6,11 @@ var mongoose = require('mongoose'),
 var config = require('../config/database');
 
 app.post('/api/signup',function(req, res) {
-    //console.log(req.body);
+  if(!req.body.username || !req.body.username)
+    return res.status(400).send({message: 'Please provide username and password'});
+
   var newUser = new User(req.body);
   newUser.hash_password = bcrypt.hashSync(req.body.password, 10);
-  console.log(newUser);
   newUser.save(function(err, user) {
     if (err) {
       return res.status(400).send({
@@ -23,6 +24,9 @@ app.post('/api/signup',function(req, res) {
 });
 
 app.post('/signin', function(req, res) {
+  if(!req.body.username || !req.body.username)
+    return res.status(400).send({message: 'Please provide username and password'});
+
   User.findOne({
     username: req.body.username
   }, function(err, user) {
