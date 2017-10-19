@@ -14,6 +14,9 @@ curl -H "Content-Type: application/json" -X POST -d '{"username":"xyz","password
 Add the token to the authorization header and then you can use the /api routes:
 
 GET /api/exception
+
+curl -H "Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inh5eiIsIl9pZCI6IjU5ZTgxNmFkYzVhMzQ3MzYzMjg1MDdmZCIsImlhdCI6MTUwODM4MjQyNn0.m8jygbi6jmjK3ztLViVRcvFqCsMIsKeLr3scEyHwLvM" -X GET http://localhost:3000/api/exception
+
 POST /api/exception
 PUT /api/exception/:exceptionId
 GET  /api/exception/:exceptionId/comment
