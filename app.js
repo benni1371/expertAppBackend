@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 module.exports.app = app;
+var config = require('../config/database');
 var mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 var bodyParser = require('body-parser');
