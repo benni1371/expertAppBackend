@@ -10,6 +10,10 @@ module.exports.io = io;
 var jwtauth = require("./security/jwt-auth");
 var _ = require('underscore');
 
+//API secret
+if(process.env.API_SECRET && process.env.NODE_ENV != 'test')
+  config.API_SECRET = process.env.API_SECRET;
+
 // middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -20,7 +24,6 @@ app.use(function(req, res, next) {
 });
 app.use(jwtauth.authenticate);
 app.use('/api', jwtauth.authenticateapi);
-
 
 //DB setup
 var uristring =
