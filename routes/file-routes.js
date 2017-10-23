@@ -6,22 +6,30 @@ var mongoose = require('mongoose');
 var Gridfs = require('gridfs-stream');
 var Exception = require('../models/schemas').exceptionSchema;
 var User = require('../models/user');
+var imagemagick = require('imagemagick');
+var config = require('../config/database');
 
 var saveResource = function(req,res,callback){
- var db = mongoose.connection.db;
- var mongoDriver = mongoose.mongo;
- var gfs = new Gridfs(db, mongoDriver);
- var writestream = gfs.createWriteStream({
-   filename: req.files.file.name,
-   mode: 'w',
-   content_type: req.files.file.mimetype,
-   metadata: req.body
- });
- fs.createReadStream(req.files.file.path).pipe(writestream);
- writestream.on('close', function(file) {
-   callback(file);
-   fs.unlink(req.files.file.path, function(err) {});
- });
+  imagemagick.resize({
+    srcPath: req.files.file.path,
+    dstPath: 'smaller-'+req.files.file,
+    width: config.imageWidth}, function(err, stdout, stderr) {
+      var db = mongoose.connection.db;
+      var mongoDriver = mongoose.mongo;
+      var gfs = new Gridfs(db, mongoDriver);
+      var writestream = gfs.createWriteStream({
+        filename: req.files.file.name,
+        mode: 'w',
+        content_type: req.files.file.mimetype,
+        metadata: req.body
+      });
+      fs.createReadStream('smaller-'+req.files.file).pipe(writestream);
+      writestream.on('close', function(file) {
+        callback(file);
+        fs.unlink(req.files.file.path, function(err) {});
+        fs.unlink('smaller-'+req.files.file, function(err) {});
+      });
+  });
 }
 
 app.post('/api/exception/:exceptionId/picture', multiparty, function(req, res){
