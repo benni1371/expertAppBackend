@@ -14,8 +14,6 @@ var expect = require('chai').expect
 var should = chai.should();
 chai.use(chaiHttp);
 
-//TODO: Try some wrong IDs!
-
 describe('Comment routes', () => {
 
     var exceptionId;
@@ -54,8 +52,8 @@ describe('Comment routes', () => {
     });
 
     describe('POST /api/exception/:exceptionId/comment', () => {
-        it('it sould poste a comment', (done) => {
-            var comment = {content: 'myBody'};
+        it('it sould post a comment', (done) => {
+            var comment = {content: 'myBody', location: [-179.0, 0.0]};
             chai.request(app)
                 .post('/api/exception/'+exceptionId+'/comment')
                 .set('authorization', authTokenExample)
@@ -64,6 +62,8 @@ describe('Comment routes', () => {
                     res.should.have.status(200);
                     Exception.findById(exceptionId, function(err, exception){
                         expect(exception.comments).to.have.lengthOf(2);
+                        expect(exception.comments[1].location[0]).to.equal(comment.location[0]);
+                        expect(exception.comments[1].location[1]).to.equal(comment.location[1]);
                         done();
                     });
                 });
@@ -87,7 +87,7 @@ describe('Comment routes', () => {
 
     describe('PUT /api/exception/:exceptionId/comment/:commentId', () => {
         it('it sould update a comment', (done) => {
-            var newComment = {content: 'myNewBody'};
+            var newComment = {content: 'myNewBody', location: [-1.0, 10.0]};
             chai.request(app)
                 .put('/api/exception/'+exceptionId+'/comment/'+commentId)
                 .set('authorization', authTokenExample)
@@ -96,6 +96,8 @@ describe('Comment routes', () => {
                     res.should.have.status(200);
                     Exception.findById(exceptionId, function(err, exception){
                         expect(exception.comments[0].content).to.equal(newComment.content);
+                        expect(exception.comments[0].location[0]).to.equal(newComment.location[0]);
+                        expect(exception.comments[0].location[1]).to.equal(newComment.location[1]);
                         done();
                     });
                 });

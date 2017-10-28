@@ -11,6 +11,8 @@ app.post('/api/exception', function(req, res){
     exception.description = req.body.description;
     exception.date = new Date();
     exception.author = req.user.username;
+    if(req.body.location)
+        exception.location = req.body.location;
 
     io.sockets.emit('exception',exception);
 
@@ -59,6 +61,8 @@ app.put('/api/exception/:exceptionId', function(req, res){
 
         exception.name = req.body.name;  // update the exceptions info
         exception.description = req.body.description;  // update the exceptions info
+        if(req.body.location)
+            exception.location = req.body.location;
 
         // save the exception
         exception.save(function(err) {
