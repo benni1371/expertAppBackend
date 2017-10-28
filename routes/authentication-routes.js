@@ -23,6 +23,30 @@ app.post('/api/signup',function(req, res) {
   });
 });
 
+app.post('/api/changepassword',function(req, res) {
+  if(!req.body.newpassword)
+    return res.status(400).send({message: 'Please provide newpassword'});
+
+  User.findOne({
+    username: req.user.username
+  }, function(err, user) {
+    if (err) throw err;
+    if (!user) {
+      return res.status(401).json({ message: 'User not found.' });
+    }
+    user.hash_password = bcrypt.hashSync(req.body.newpassword, 10);
+    user.save(function(err, user) {
+      if (err) {
+        return res.status(400).send({
+          message: err
+        });
+      }
+      user.hash_password = undefined;
+      return res.json(user);
+    });
+  });
+});
+
 app.post('/signin', function(req, res) {
   if(!req.body.username || !req.body.username)
     return res.status(400).send({message: 'Please provide username and password'});
