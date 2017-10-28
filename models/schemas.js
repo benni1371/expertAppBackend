@@ -4,7 +4,8 @@ var Schema       = mongoose.Schema;
 var commentSchema = new Schema({
     content  : String,
     date  : Date,
-    author : String
+    author : String,
+    location: { type: [Number], index: '2dsphere'}
 });
 
 module.exports.commentSchema = mongoose.model('Comment', commentSchema);
