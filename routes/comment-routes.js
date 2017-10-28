@@ -15,6 +15,8 @@ app.post('/api/exception/:exceptionId/comment', function(req, res){
         comment.content = req.body.content;
         comment.date = new Date();
         comment.author = req.user.username;
+        if(req.body.location)
+            comment.location = req.body.location;
 
         exception.comments.push(comment);
 
@@ -67,6 +69,8 @@ app.put('/api/exception/:exceptionId/comment/:commentId', function(req, res){
             for(var i=0;i<exception.comments.length;i++){
                 if(exception.comments[i].id == req.params.commentId){
                     exception.comments[i].content = req.body.content;
+                    if(req.body.location)
+                        exception.comments[i].location = req.body.location;
                     found = true;
                 }
             }

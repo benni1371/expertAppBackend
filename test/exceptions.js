@@ -48,7 +48,7 @@ describe('Exception routes', () => {
 
     describe('GET /api/exception/:exceptionId', () => {
         it('it should GET a exception by the given id', (done) => {
-            var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z' });
+            var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z', location: [-179.0, 0.0] });
             exception.save((err, exception) => {
                 chai.request(app)
                 .get('/api/exception/' + exception.id)
@@ -60,6 +60,7 @@ describe('Exception routes', () => {
                     res.body.should.have.property('description');
                     res.body.should.have.property('author');
                     res.body.should.have.property('date');
+                    res.body.should.have.property('location');
                     res.body.should.have.property('_id').eql(exception.id);
                     done();
                 });
@@ -68,7 +69,7 @@ describe('Exception routes', () => {
     });
 
     describe('POST /api/exception', () => {
-        var exception = new Exception({ name:'testException', description:'myDescription' });
+        var exception = { name:'testException', description:'myDescription',location: [-179.0, 0.0]  };
         it('it should POST an exception', (done) => {
             chai.request(app)
                 .post('/api/exception')
@@ -79,6 +80,9 @@ describe('Exception routes', () => {
                     Exception.findOne({name: 'testException'}, function(err, returnedException) {
                         expect(returnedException.name).to.equal(exception.name);
                         expect(returnedException.description).to.equal(exception.description);
+                        returnedException.should.have.property('location');
+                        expect(returnedException.location[0]).to.equal(exception.location[0]);
+                        expect(returnedException.location[1]).to.equal(exception.location[1]);
                         //added by server
                         returnedException.should.have.property('author');
                         returnedException.should.have.property('date');
@@ -108,7 +112,7 @@ describe('Exception routes', () => {
 
     describe('PUT /api/exception/:exceptionId', () => {
         it('it should update an exception by the given id', (done) => {
-            var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z' });
+            var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z',location: [-179.0, 0.0]});
             var updatedException = new Exception({ name:'testException', description:'my updated Description' });
             exception.save((err, exception) => {
                 chai.request(app)
@@ -119,6 +123,8 @@ describe('Exception routes', () => {
                     res.should.have.status(200);
                     Exception.findById(exception.id, function(err, returnedException) {
                         expect(returnedException.description).to.equal(updatedException.description);
+                        expect(returnedException.location[0]).to.equal(exception.location[0]);
+                        expect(returnedException.location[1]).to.equal(exception.location[1]);
                         done();
                     });
                 });
