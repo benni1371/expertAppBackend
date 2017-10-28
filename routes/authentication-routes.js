@@ -1,7 +1,7 @@
 var mongoose = require('mongoose'),
   app = require('../app').app,
   jwt = require('jsonwebtoken'),
-  bcrypt = require('bcrypt'),
+  bcrypt = require('bcryptjs'),
   User = require("../models/user");
 var config = require('../config/database');
 

@@ -17,11 +17,7 @@ var exceptionSchema   = new Schema({
     author : String,
     comments  : [commentSchema],
     //GeoJSON for spatial data
-    loc: {
-        type: { type: String }, 
-        coordinates: []
-    }
+    location: { type: [Number], index: '2dsphere'}
 });
-exceptionSchema.index({ loc: '2dsphere' });
 
 module.exports.exceptionSchema = mongoose.model('Exception', exceptionSchema);
