@@ -11,6 +11,7 @@ app.post('/api/exception', function(req, res){
     exception.description = req.body.description;
     exception.date = new Date();
     exception.author = req.user.username;
+    exception.location = { type: 'Point', coordinates: [-179.0, 0.0] };
 
     io.sockets.emit('exception',exception);
 
