@@ -2,6 +2,7 @@ var config = require('../config/database');
 var jsonwebtoken = require("jsonwebtoken");
 var _ = require('underscore');
 var io = require('../app').io;
+var tokenstorage = require('../helpers/tokenStorage');
 
 _.each(io.nsps, function(nsp){
   nsp.on('connect', function(socket){
@@ -17,7 +18,7 @@ module.exports.authenticatesocketio = function(socket){
   socket.on('authenticate', function(data){
     //check the auth data sent by the client
       if(data.token){
-        jsonwebtoken.verify(data.token, config.secret, function(err, decode) {
+        verifyToken(data.token, function(err, decode) {
           if (err) {
             socket.request.user = undefined;
           } else {
@@ -49,7 +50,7 @@ module.exports.authenticate = function(req, res, next) {
     req.user = {'username':'optionsuser'};
     next();
   } else if (req.headers && req.headers.authorization) {
-    jsonwebtoken.verify(req.headers.authorization, config.secret, function(err, decode) {
+    verifyToken(req.headers.authorization, function(err, decode) {
       if (err) req.user = undefined;
       req.user = decode;
       next();
@@ -59,6 +60,18 @@ module.exports.authenticate = function(req, res, next) {
     next();
   }
 };
+
+var verifyToken = function(token, callback){
+  jsonwebtoken.verify(token, config.secret, function(err, decode) {
+    if (err)
+      return callback(err, undefined);
+    tokenstorage.validateToken(decode.username,token,function(valid){
+      if(valid) 
+        return callback(err, decode);
+      return callback('JWT is invalid', undefined);
+    })
+  });
+}
 
 module.exports.authenticateapi = function (req, res, next) {
   if(req.user){

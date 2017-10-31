@@ -3,6 +3,7 @@ The REST API for the expert collaboration app
 To deploy in local mode:
 
 sudo docker run -d -p 27017:27017 mongo
+sudo redis-server
 sudo npm start
 
 To use first request a user & sign in:
@@ -30,3 +31,12 @@ POST /signin
 To upload picture use: testFileUpload.html
 To test socket.io use: testSocketio.html
 
+Future plans: 
+-> Mit unit test warten bis redis und mongo connected
+
+-> bei authentication prüfen, ob token validated
+-> wenn user geupdated token invalidieren
+
+-> Rollensystem
+
+-> alles als docker compose, io socket redis, nginx usw.

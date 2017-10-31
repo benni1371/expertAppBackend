@@ -1,0 +1,27 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/n/versions/node/8.8.1/bin/node',
+1 verbose cli   '/usr/bin/npm',
+1 verbose cli   'install' ]
+2 info using npm@3.5.2
+3 info using node@v8.8.1
+4 verbose stack Error: Cannot find module 'ansi'
+4 verbose stack     at Function.Module._resolveFilename (module.js:513:15)
+4 verbose stack     at Function.Module._load (module.js:463:25)
+4 verbose stack     at Module.require (module.js:556:17)
+4 verbose stack     at require (internal/module.js:11:18)
+4 verbose stack     at Object.<anonymous> (/usr/share/npm/lib/ls.js:15:13)
+4 verbose stack     at Module._compile (module.js:612:30)
+4 verbose stack     at Object.Module._extensions..js (module.js:623:10)
+4 verbose stack     at Module.load (module.js:531:32)
+4 verbose stack     at tryModuleLoad (module.js:494:12)
+4 verbose stack     at Function.Module._load (module.js:486:3)
+5 verbose cwd /home/benjamin/expertApp/expertAppBackend
+6 error Linux 4.10.0-37-generic
+7 error argv "/usr/local/n/versions/node/8.8.1/bin/node" "/usr/bin/npm" "install"
+8 error node v8.8.1
+9 error npm  v3.5.2
+10 error code MODULE_NOT_FOUND
+11 error Cannot find module 'ansi'
+12 error If you need help, you may report this error at:
+12 error     <https://github.com/npm/npm/issues>
+13 verbose exit [ 1, true ]
