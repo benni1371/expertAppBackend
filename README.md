@@ -3,7 +3,7 @@ The REST API for the expert collaboration app
 To deploy in local mode:
 
 sudo docker run -d -p 27017:27017 mongo
-sudo redis server
+sudo redis-server
 sudo npm start
 
 To use first request a user & sign in:
@@ -37,5 +37,6 @@ Future plans:
 -> bei authentication prüfen, ob token validated
 -> wenn user geupdated token invalidieren
 
--> alles als docker compose, io socket redis, nginx usw.
 -> Rollensystem
+
+-> alles als docker compose, io socket redis, nginx usw.
