@@ -26,7 +26,7 @@ app.post('/api/user',function(req, res) {
   });
 });
 
-//change password
+//change your own password
 app.put('/api/user/:userId/password',function(req, res) {
   if(!req.body.newpassword)
     return res.status(400).send({message: 'Please provide newpassword'});
@@ -49,6 +49,7 @@ app.put('/api/user/:userId/password',function(req, res) {
         });
       }
       user.hash_password = undefined;
+      tokenstorage.deleteTokensOfUser(req.user.username);
       return res.json(user);
     });
   });
@@ -56,12 +57,13 @@ app.put('/api/user/:userId/password',function(req, res) {
 
 //Todo: app.put(/api/user/:userId/roles) for admin & RESET tokens!!!
 
-//Todo: only admin & RESET tokens!!!
+//Todo: only admin
 app.delete('/api/user/:userId',function(req, res) {
   User.remove({username: req.params.userId}, function(err) {
     if (err)
         return res.status(400).send({message: err});
 
+    tokenstorage.deleteTokensOfUser(req.params.userId);
     res.json({ message: 'Successfully deleted' });
   });
 });
@@ -78,7 +80,8 @@ app.post('/signin', function(req, res) {
       return res.status(401).json({ message: 'Authentication failed. Invalid user or password.' });
     }
     var token = jwt.sign({ username: user.username, _id: user._id }, config.secret);
-    //tokenstorage.storeToken(user.username,token,function(){});
-    return res.json({ token: token});
+    tokenstorage.storeToken(user.username,token,function(err){
+      return res.json({ token: token});
+    });
   });
 });

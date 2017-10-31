@@ -14,10 +14,10 @@ var expect = require('chai').expect
 var should = chai.should();
 chai.use(chaiHttp);
 
-var Mockgoose = require('mockgoose').Mockgoose;
-var mockgoose = new Mockgoose(mongoose);
+var tokenstorage = require('../helpers/tokenStorage');
 
 describe('Authentication routes', () => {
+
     afterEach((done) => { //Before each test we empty the database
         User.remove({}, (err) => {
             done();         
@@ -27,6 +27,23 @@ describe('Authentication routes', () => {
     var user = {username: 'createdUser', password: '5k3</@3h4;%v;j&(/i=!S5=k6p%qwV5'};
     var userNewPassword = {username: 'createdUser', password: 'new'+ user.password};
     var incorrectUser = {username: 'user', password: 'wrong_password'};
+
+    describe('Access with outdated token', () => {
+        it('You should not be able to access a route', (done) => {
+            tokenstorage.deleteTokensOfUser('xyz', function(){
+                chai.request(app)
+                .get('/api/exception')
+                .set('authorization',authTokenExample)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    //reverse changes for test user
+                    tokenstorage.storeToken('xyz',authTokenExample,function(){
+                        done();
+                    });
+                });
+            })
+        });
+    });
 
     describe('POST api/signup & signin', () => {
         it('it sould signup and signin', (done) => {
@@ -188,6 +205,40 @@ describe('Authentication routes', () => {
         });
     });
 
+    describe('Change password and try to access with old token', () => {
+        it('it sould be rejected', (done) => {
+            chai.request(app)
+                .post('/api/user')
+                .set('authorization',authTokenExample)
+                .send(user)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    expect(res.body.username).to.equal(user.username);
+                    chai.request(app)
+                        .post('/signin')
+                        .send(user)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.have.property('token');
+                            var token = res.body.token;
+                            chai.request(app)
+                                .put('/api/user/createdUser/password')
+                                .set('authorization',token)
+                                .send({newpassword: userNewPassword.password})
+                                .end((err, res) => {
+                                    chai.request(app)
+                                    .post('/api/exception')
+                                    .set('authorization',token)
+                                    .end((err, res) => {
+                                        res.should.have.status(401);
+                                        done();
+                                    });
+                                });
+                        });
+                });
+        });
+    });
+
     describe('DELETE api/user/:userId', () => {
         it('it sould delete the user', (done) => {
             chai.request(app)
@@ -210,6 +261,38 @@ describe('Authentication routes', () => {
                                         done();
                                 });
                         });
+                });
+        });
+    });
+
+    describe('DELETE api/user/:userId', () => {
+        it('it sould not accept the now outdated token', (done) => {
+            chai.request(app)
+                .post('/api/user')
+                .set('authorization',authTokenExample)
+                .send(user)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    expect(res.body.username).to.equal(user.username);
+                    chai.request(app)
+                    .post('/signin')
+                    .send(user)
+                    .end((err, res) => {
+                        var token = res.body.token;
+                        chai.request(app)
+                            .delete('/api/user/createdUser')
+                            .set('authorization',authTokenExample)
+                            .end((err, res) => {
+                                res.should.have.status(200);
+                                chai.request(app)
+                                    .get('/api/exception')
+                                    .set('authorization',token)
+                                    .end((err, res) => {
+                                            res.should.have.status(401);
+                                            done();
+                                    });
+                            });
+                    });
                 });
         });
     });
