@@ -26,17 +26,11 @@ app.use(function(req, res, next) {
 app.use(jwtauth.authenticate);
 app.use('/api', jwtauth.authenticateapi);
 
-//DB setup
-var uristring =
-    process.env.MONGODB_URI ||
-    process.env.MONGOHQ_URL ||
-    'mongodb://localhost:27017';
-	
-mongoose.connect(uristring, {
+mongoose.connect(config.mongoUrl, {
   useMongoClient: true
 }).then(function(){
   if(process.env.NODE_ENV != 'test')
-	  console.log('Connected to Mongo');
+    console.log('Connected to Mongo');
 });
 
 //defines the routes

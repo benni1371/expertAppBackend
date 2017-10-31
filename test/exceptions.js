@@ -10,7 +10,7 @@ var authTokenExample = require('../config/database').authTokenExample;
 //Require the dev-dependencies
 var chai = require('chai');
 var chaiHttp = require('chai-http');
-var expect = require('chai').expect
+var expect = require('chai').expect;
 var should = chai.should();
 chai.use(chaiHttp);
 
