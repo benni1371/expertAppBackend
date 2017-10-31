@@ -3,17 +3,7 @@ var mongoose = require('mongoose'),
   jwt = require('jsonwebtoken'),
   bcrypt = require('bcryptjs'),
   User = require("../models/user");
-
-var level = require('level');
-var Secondary = require('level-secondary');
-var sub = require('level-sublevel');
-  
-var db = sub(level('../db', {
-  valueEncoding: 'json'
-}));
-  
-var tokens = db.sublevel('tokens');
-tokens.byUsername = Secondary(tokens, 'username');
+var tokenstorage = require('../helpers/tokenStorage');
 
 var config = require('../config/database');
 
@@ -36,6 +26,7 @@ app.post('/api/user',function(req, res) {
   });
 });
 
+//change password
 app.put('/api/user/:userId/password',function(req, res) {
   if(!req.body.newpassword)
     return res.status(400).send({message: 'Please provide newpassword'});
@@ -87,11 +78,7 @@ app.post('/signin', function(req, res) {
       return res.status(401).json({ message: 'Authentication failed. Invalid user or password.' });
     }
     var token = jwt.sign({ username: user.username, _id: user._id }, config.secret);
-
-    tokens.put(token, {
-      username: user.username
-    }, function(err) {
-      return res.json({ token: token});
-    });
+    //tokenstorage.storeToken(user.username,token,function(){});
+    return res.json({ token: token});
   });
 });

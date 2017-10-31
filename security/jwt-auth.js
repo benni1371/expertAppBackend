@@ -2,6 +2,7 @@ var config = require('../config/database');
 var jsonwebtoken = require("jsonwebtoken");
 var _ = require('underscore');
 var io = require('../app').io;
+var tokenstorage = require('../helpers/tokenStorage');
 
 _.each(io.nsps, function(nsp){
   nsp.on('connect', function(socket){

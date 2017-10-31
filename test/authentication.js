@@ -14,6 +14,9 @@ var expect = require('chai').expect
 var should = chai.should();
 chai.use(chaiHttp);
 
+var Mockgoose = require('mockgoose').Mockgoose;
+var mockgoose = new Mockgoose(mongoose);
+
 describe('Authentication routes', () => {
     afterEach((done) => { //Before each test we empty the database
         User.remove({}, (err) => {
