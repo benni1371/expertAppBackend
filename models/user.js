@@ -4,16 +4,20 @@ var bcrypt = require('bcryptjs');
 
 var UserSchema = new Schema({
   username: {
-        type: String,
-        unique: true,
-        required: true,
-        unique: true
-    },
+    type: String,
+    unique: true,
+    required: true,
+    unique: true
+  },
   hash_password: {
-        type: String,
-        required: true
-    },
-    pictureurl: String
+    type: String,
+    required: true
+  },
+  role: {
+    type: String,
+    required: true
+  },
+  pictureurl: String
 });
 
 UserSchema.methods.comparePassword = function(password) {
