@@ -6,6 +6,7 @@ var Exception = require('../models/schemas').exceptionSchema;
 
 //provide an example JWT for test purpose
 var authTokenExample = require('../config/database').authTokenExample;
+var authTokenExampleNoAdmin = require('../config/database').authTokenExampleNoAdmin;
 
 //Require the dev-dependencies
 var chai = require('chai');
@@ -92,7 +93,7 @@ describe('Exception routes', () => {
             });
     });
 
-    describe('DELETE /api/exception/:exceptionId', () => {
+    describe('DELETE /api/exception/:exceptionId as admin', () => {
         it('it should delete a exception by the given id', (done) => {
             var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z' });
             exception.save((err, exception) => {
@@ -110,7 +111,44 @@ describe('Exception routes', () => {
         });
     });
 
-    describe('PUT /api/exception/:exceptionId', () => {
+    describe('DELETE /api/exception/:exceptionId as non-author', () => {
+        it('it should not delete a exception by the given id', (done) => {
+            var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z' });
+            exception.save((err, exception) => {
+                chai.request(app)
+                .delete('/api/exception/' + exception.id)
+                .set('authorization', authTokenExampleNoAdmin)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    Exception.count({name: 'testException'}, function(err, count) {
+                        expect(count).to.equal(1);
+                        expect(res.body.message).to.equal('Not authorized.');
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    describe('DELETE /api/exception/:exceptionId as author but no admin', () => {
+        it('it should delete a exception by the given id', (done) => {
+            var exception = new Exception({ name:'testException', description:'myDescription', author:'noAdmin',date: '2017-10-18T16:45:06.969Z' });
+            exception.save((err, exception) => {
+                chai.request(app)
+                .delete('/api/exception/' + exception.id)
+                .set('authorization', authTokenExampleNoAdmin)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    Exception.count({name: 'testException'}, function(err, count) {
+                        expect(count).to.equal(0);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    describe('PUT /api/exception/:exceptionId as admin', () => {
         it('it should update an exception by the given id', (done) => {
             var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z',location: [-179.0, 0.0]});
             var updatedException = new Exception({ name:'testException', description:'my updated Description' });
@@ -118,6 +156,50 @@ describe('Exception routes', () => {
                 chai.request(app)
                 .put('/api/exception/' + exception.id)
                 .set('authorization', authTokenExample)
+                .send(updatedException)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    Exception.findById(exception.id, function(err, returnedException) {
+                        expect(returnedException.description).to.equal(updatedException.description);
+                        expect(returnedException.location[0]).to.equal(exception.location[0]);
+                        expect(returnedException.location[1]).to.equal(exception.location[1]);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    describe('PUT /api/exception/:exceptionId as non-author', () => {
+        it('it should not update an exception by the given id', (done) => {
+            var exception = new Exception({ name:'testException', description:'myDescription', author:'henrik',date: '2017-10-18T16:45:06.969Z',location: [-179.0, 0.0]});
+            var updatedException = new Exception({ name:'testException', description:'my updated Description' });
+            exception.save((err, exception) => {
+                chai.request(app)
+                .put('/api/exception/' + exception.id)
+                .set('authorization', authTokenExampleNoAdmin)
+                .send(updatedException)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    Exception.findById(exception.id, function(err, returnedException) {
+                        expect(returnedException.description).to.equal(exception.description);
+                        expect(returnedException.location[0]).to.equal(exception.location[0]);
+                        expect(returnedException.location[1]).to.equal(exception.location[1]);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    describe('PUT /api/exception/:exceptionId as author but no admin', () => {
+        it('it should update an exception by the given id', (done) => {
+            var exception = new Exception({ name:'testException', description:'myDescription', author:'noAdmin',date: '2017-10-18T16:45:06.969Z',location: [-179.0, 0.0]});
+            var updatedException = new Exception({ name:'testException', description:'my updated Description' });
+            exception.save((err, exception) => {
+                chai.request(app)
+                .put('/api/exception/' + exception.id)
+                .set('authorization', authTokenExampleNoAdmin)
                 .send(updatedException)
                 .end((err, res) => {
                     res.should.have.status(200);

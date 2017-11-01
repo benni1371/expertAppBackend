@@ -2,8 +2,9 @@ var app = require('../app').app;
 var io = require('../app').io;
 var Exception = require('../models/schemas').exceptionSchema;
 var Comment = require('../models/schemas').commentSchema;
+var authorize = require('../security/authorization-middleware');
 
-app.post('/api/exception/:exceptionId/comment', function(req, res){
+app.post('/api/exception/:exceptionId/comment',authorize(['expert','admin']), function(req, res){
     if(!req.body.content)
         return res.status(400).send({message: 'Please provide content'});
 
@@ -32,7 +33,7 @@ app.post('/api/exception/:exceptionId/comment', function(req, res){
     });
 });
 
-app.delete('/api/exception/:exceptionId/comment/:commentId', function(req, res){
+app.delete('/api/exception/:exceptionId/comment/:commentId',authorize(['expert','admin']), function(req, res){
     Exception.findById(req.params.exceptionId, function(err, exception) {
             if (err || !exception)
                 return res.status(400).send({message: 'Error: exceptionId not found'});
@@ -40,6 +41,8 @@ app.delete('/api/exception/:exceptionId/comment/:commentId', function(req, res){
             var found = false;
             for(var i=0;i<exception.comments.length;i++){
                 if(exception.comments[i].id == req.params.commentId){
+                    if(exception.comments[i].author != req.user.username && req.user.role != 'admin')
+                        return res.status(401).json({ message: 'Not authorized.' });
                     exception.comments.splice(i,1);
                     found = true;
                 }
@@ -57,7 +60,7 @@ app.delete('/api/exception/:exceptionId/comment/:commentId', function(req, res){
     );
 });
 
-app.put('/api/exception/:exceptionId/comment/:commentId', function(req, res){
+app.put('/api/exception/:exceptionId/comment/:commentId',authorize(['expert','admin']), function(req, res){
     if(!req.body.content)
         return res.status(400).send({message: 'Please provide content'});
 
@@ -68,6 +71,8 @@ app.put('/api/exception/:exceptionId/comment/:commentId', function(req, res){
             var found = false;
             for(var i=0;i<exception.comments.length;i++){
                 if(exception.comments[i].id == req.params.commentId){
+                    if(exception.comments[i].author != req.user.username && req.user.role != 'admin')
+                        return res.status(401).json({ message: 'Not authorized.' });
                     exception.comments[i].content = req.body.content;
                     if(req.body.location)
                         exception.comments[i].location = req.body.location;
