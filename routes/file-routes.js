@@ -8,6 +8,7 @@ var Exception = require('../models/schemas').exceptionSchema;
 var User = require('../models/user');
 var imagemagick = require('imagemagick');
 var config = require('../config/database');
+var authorize = require('../security/authorization-middleware');
 
 var saveResource = function(req,res,callback){
   imagemagick.resize({
@@ -32,11 +33,14 @@ var saveResource = function(req,res,callback){
   });
 }
 
-app.post('/api/exception/:exceptionId/picture', multiparty, function(req, res){
-  saveResource(req,res,function(file){
-    Exception.findById(req.params.exceptionId, function(err, exception) {
+app.post('/api/exception/:exceptionId/picture',authorize(['expert','admin']), multiparty, function(req, res){
+  Exception.findById(req.params.exceptionId, function(err, exception) {
+    saveResource(req,res,function(file){
         if (err || !exception)
             return res.status(400).json({ message: 'Error: Exception not found' });
+
+        if(exception.author != req.user.username && req.user.role != 'admin')
+            return res.status(401).json({ message: 'Not authorized.' });
 
         exception.pictureurl = file._id;  // update the exceptions info
 
@@ -50,7 +54,10 @@ app.post('/api/exception/:exceptionId/picture', multiparty, function(req, res){
   });
 });
 
-app.post('/api/user/:userName/picture', multiparty, function(req, res){
+app.post('/api/user/:userName/picture',authorize(['expert','admin']), multiparty, function(req, res){
+  if(req.params.userName != req.user.username && req.user.role != 'admin')
+    return res.status(401).json({ message: 'Not authorized.' });
+
   saveResource(req,res,function(file){
     User.findOne({ 'username' :  req.params.userName },function(err, user){
       if (err || !user)
@@ -67,7 +74,7 @@ app.post('/api/user/:userName/picture', multiparty, function(req, res){
   });
 });
 
-app.get('/api/picture/:pictureId', function(req, res) {
+app.get('/api/picture/:pictureId',authorize(['expert','admin']), function(req, res) {
   var db = mongoose.connection.db;
   var mongoDriver = mongoose.mongo;
   var gfs = new Gridfs(db, mongoDriver);

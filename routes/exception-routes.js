@@ -1,8 +1,9 @@
 var app = require('../app').app;
 var io = require('../app').io;
 var Exception = require('../models/schemas').exceptionSchema;
+var authorize = require('../security/authorization-middleware');
 
-app.post('/api/exception', function(req, res){
+app.post('/api/exception',authorize(['expert','admin']), function(req, res){
     if(!req.body.name || !req.body.description)
         return res.status(400).send({message: 'Please provide name and description'});
 
@@ -25,7 +26,7 @@ app.post('/api/exception', function(req, res){
     });
 });
 
-app.get('/api/exception', function(req, res){
+app.get('/api/exception',authorize(['expert','admin']), function(req, res){
     var inputDate = req.query.olderthan || new Date();
     Exception.find({'date': { $lt: inputDate }},function(err, exceptions) {
         if (err)
@@ -35,7 +36,7 @@ app.get('/api/exception', function(req, res){
     .sort([['date', -1]]);
 });
 
-app.get('/api/exception/:exceptionId', function(req, res){
+app.get('/api/exception/:exceptionId',authorize(['expert','admin']), function(req, res){
     Exception.findById(req.params.exceptionId, function(err, exception) {
         if (err || !exception)
             return res.status(400).send({message: 'Error: Id not found'});
@@ -43,21 +44,33 @@ app.get('/api/exception/:exceptionId', function(req, res){
     });
 });
 
-app.delete('/api/exception/:exceptionId', function(req, res){
-    Exception.remove({_id: req.params.exceptionId}, function(err, exception) {
-        if (err)
-            res.status(400).send({message: 'Error: Id not found'});
-        res.json({ message: 'Successfully deleted' });
+app.delete('/api/exception/:exceptionId',authorize(['expert','admin']), function(req, res){
+    Exception.findById(req.params.exceptionId, function(err, exception) {
+        if (err || !exception)
+            return res.status(400).send({message: 'Error: Id not found'});
+
+        if(exception.author != req.user.username && req.user.role != 'admin')
+            return res.status(401).json({ message: 'Not authorized.' });
+
+        Exception.remove({_id: req.params.exceptionId}, function(err, exception) {
+            if (err)
+                return res.status(400).send({message: 'Error: Id not found'});
+
+            res.json({ message: 'Successfully deleted' });
+        });
     });
 });
 
-app.put('/api/exception/:exceptionId', function(req, res){
+app.put('/api/exception/:exceptionId',authorize(['expert','admin']), function(req, res){
     if(!req.body.name || !req.body.description)
         return res.status(400).send({message: 'Please provide name and description'});
 
     Exception.findById(req.params.exceptionId, function(err, exception) {
         if (err || !exception)
             return res.status(400).send({message: 'Error: Id not found'});
+
+        if(exception.author != req.user.username && req.user.role != 'admin')
+            return res.status(401).json({ message: 'Not authorized.' });
 
         exception.name = req.body.name;  // update the exceptions info
         exception.description = req.body.description;  // update the exceptions info

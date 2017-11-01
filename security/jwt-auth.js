@@ -64,11 +64,11 @@ module.exports.authenticate = function(req, res, next) {
 var verifyToken = function(token, callback){
   jsonwebtoken.verify(token, config.secret, function(err, decode) {
     if (err)
-      return callback(err, undefined);
+      return callback('JWT is invalid', undefined);
     tokenstorage.validateToken(decode.username,token,function(valid){
       if(valid) 
         return callback(err, decode);
-      return callback('JWT is invalid', undefined);
+      return callback('JWT is not accepted', undefined);
     })
   });
 }

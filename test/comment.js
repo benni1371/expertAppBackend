@@ -6,6 +6,7 @@ var Exception = require('../models/schemas').exceptionSchema;
 
 //provide an example JWT for test purpose
 var authTokenExample = require('../config/database').authTokenExample;
+var authTokenExampleNoAdmin = require('../config/database').authTokenExampleNoAdmin;
 
 //Require the dev-dependencies
 var chai = require('chai');
@@ -85,6 +86,51 @@ describe('Comment routes', () => {
         });
     });
 
+    describe('DELETE /api/exception/:exceptionId/comment/:commentId as non-admin', () => {
+        it('it not sould delete a comment', (done) => {
+            chai.request(app)
+                .delete('/api/exception/'+exceptionId+'/comment/'+commentId)
+                .set('authorization', authTokenExampleNoAdmin)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    Exception.findById(exceptionId, function(err, exception){
+                        expect(exception.comments).to.have.lengthOf(1);
+                        done();
+                    });
+                });
+        });
+    });
+
+    describe('DELETE /api/exception/:exceptionId/comment/:commentId as non-admin but author', () => {
+        it('it sould delete a comment', (done) => {
+            Exception.remove({}, (err) => {
+                var exception = new Exception({ 
+                    name:'testException', 
+                    description:'myDescription', 
+                    author:'henrik',
+                    date: '2017-10-18T16:45:06.969Z',
+                    comments: [
+                        { content: 'body', author: 'noAdmin', date: '2017-10-18T16:45:06.969Z'}
+                    ]
+                });
+                exception.save((err, exception) => {
+                    exceptionId = exception._id;
+                    commentId = exception.comments[0]._id;
+                    chai.request(app)
+                    .delete('/api/exception/'+exceptionId+'/comment/'+commentId)
+                    .set('authorization', authTokenExampleNoAdmin)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        Exception.findById(exceptionId, function(err, exception){
+                            expect(exception.comments).to.have.lengthOf(0);
+                            done();
+                        });
+                    });
+                });         
+            });
+        });
+    });
+
     describe('PUT /api/exception/:exceptionId/comment/:commentId', () => {
         it('it sould update a comment', (done) => {
             var newComment = {content: 'myNewBody', location: [-1.0, 10.0]};
@@ -101,6 +147,57 @@ describe('Comment routes', () => {
                         done();
                     });
                 });
+        });
+    });
+
+    describe('PUT /api/exception/:exceptionId/comment/:commentId as non-admin', () => {
+        it('it sould not update a comment', (done) => {
+            var newComment = {content: 'myNewBody', location: [-1.0, 10.0]};
+            chai.request(app)
+                .put('/api/exception/'+exceptionId+'/comment/'+commentId)
+                .set('authorization', authTokenExampleNoAdmin)
+                .send(newComment)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    Exception.findById(exceptionId, function(err, exception){
+                        expect(exception.comments[0].content).to.equal('body');
+                        done();
+                    });
+                });
+        });
+    });
+
+    describe('PUT /api/exception/:exceptionId/comment/:commentId as non-admin but as author', () => {
+        it('it sould update a comment', (done) => {
+            var newComment = {content: 'myNewBody', location: [-1.0, 10.0]};
+            Exception.remove({}, (err) => {
+                var exception = new Exception({ 
+                    name:'testException', 
+                    description:'myDescription', 
+                    author:'henrik',
+                    date: '2017-10-18T16:45:06.969Z',
+                    comments: [
+                        { content: 'body', author: 'noAdmin', date: '2017-10-18T16:45:06.969Z'}
+                    ]
+                });
+                exception.save((err, exception) => {
+                    exceptionId = exception._id;
+                    commentId = exception.comments[0]._id;
+                    chai.request(app)
+                    .put('/api/exception/'+exceptionId+'/comment/'+commentId)
+                    .set('authorization', authTokenExampleNoAdmin)
+                    .send(newComment)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        Exception.findById(exceptionId, function(err, exception){
+                            expect(exception.comments[0].content).to.equal(newComment.content);
+                            expect(exception.comments[0].location[0]).to.equal(newComment.location[0]);
+                            expect(exception.comments[0].location[1]).to.equal(newComment.location[1]);
+                            done();
+                        });
+                    });
+                });         
+            });
         });
     });
 

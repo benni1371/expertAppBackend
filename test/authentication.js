@@ -6,6 +6,7 @@ var User = require('../models/user');
 
 //provide an example JWT for test purpose
 var authTokenExample = require('../config/database').authTokenExample;
+var authTokenExampleNoAdmin = require('../config/database').authTokenExampleNoAdmin;
 
 //Require the dev-dependencies
 var chai = require('chai');
@@ -24,9 +25,9 @@ describe('Authentication routes', () => {
         });     
     });
 
-    var user = {username: 'createdUser', password: '5k3</@3h4;%v;j&(/i=!S5=k6p%qwV5'};
+    var user = {username: 'createdUser', password: '5k3</@3h4;%v;j&(/i=!S5=k6p%qwV5', role: 'expert'};
     var userNewPassword = {username: 'createdUser', password: 'new'+ user.password};
-    var incorrectUser = {username: 'user', password: 'wrong_password'};
+    var incorrectUser = {username: 'user', password: 'wrong_password' , role: 'expert'};
 
     describe('Access with outdated token', () => {
         it('You should not be able to access a route', (done) => {
@@ -62,6 +63,20 @@ describe('Authentication routes', () => {
                             res.body.should.have.property('token');
                             done();
                         });
+                });
+            });
+    });
+
+    describe('POST api/signup & signin without admin role', () => {
+        it('it sould signup and signin', (done) => {
+            chai.request(app)
+                .post('/api/user')
+                .set('authorization',authTokenExampleNoAdmin)
+                .send(user)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    expect(res.body.message).to.equal('Not authorized.');
+                    done();
                 });
             });
     });
@@ -112,7 +127,7 @@ describe('Authentication routes', () => {
                 .send({})
                 .end((err, res) => {
                     res.should.have.status(400);
-                    expect(res.body.message).to.equal('Please provide username and password');
+                    expect(res.body.message).to.equal('Please provide username, password and role');
                     done();
                 });
             });
@@ -143,11 +158,80 @@ describe('Authentication routes', () => {
             });
     });
 
+    describe('PUT api/user/:userId/role', () => {
+        it('it sould change the role', (done) => {
+            var user = new User({username: 'benjaminfranklin', hash_password: '5k3</@3h4;%v;j&(/i=!S5=k6p%qwV5', role: 'expert'});
+            user.save((err, user) => {
+                chai.request(app)
+                .put('/api/user/benjaminfranklin/role')
+                .set('authorization',authTokenExample)
+                .send({newrole: 'myNewRole'})
+                .end((err, res) => {
+                    User.findOne({
+                        username: 'benjaminfranklin'
+                    }, function(err, user) {
+                        expect(user.role).to.be.equal('myNewRole');
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    describe('PUT api/user/:userId/role without Parameters', () => {
+        it('it sould be rejected', (done) => {
+            var user = new User({username: 'benjaminfranklin', hash_password: '5k3</@3h4;%v;j&(/i=!S5=k6p%qwV5', role: 'expert'});
+            user.save((err, user) => {
+                chai.request(app)
+                .put('/api/user/benjaminfranklin/role')
+                .set('authorization',authTokenExample)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    expect(res.body.message).to.equal('Please provide newrole');
+                    done();
+                });
+            });
+        });
+    });
+
+    describe('PUT api/user/:userId/role without admin Role', () => {
+        it('it sould be rejected', (done) => {
+            var user = new User({username: 'benjaminfranklin', hash_password: '5k3</@3h4;%v;j&(/i=!S5=k6p%qwV5', role: 'expert'});
+            user.save((err, user) => {
+                chai.request(app)
+                .put('/api/user/benjaminfranklin/role')
+                .set('authorization',authTokenExampleNoAdmin)
+                .send({newrole: 'myNewRole'})
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    expect(res.body.message).to.equal('Not authorized.');
+                    done();
+                });
+            });
+        });
+    });
+
+    describe('PUT api/user/:userId/password for other user as admin', () => {
+        it('it sould fail to change password for other user as admin', (done) => {
+            var user = new User({username: 'benjaminfranklin', hash_password: '5k3</@3h4;%v;j&(/i=!S5=k6p%qwV5', role: 'expert'});
+            user.save((err, user) => {
+                chai.request(app)
+                .put('/api/user/benjaminfranklin/password')
+                .set('authorization',authTokenExample)
+                .send({newpassword: userNewPassword.password})
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    done();
+                });
+            });
+        });
+    });
+
     describe('PUT api/user/:userId/password for wrong user', () => {
         it('it sould fail to change password for wrong user', (done) => {
             chai.request(app)
                 .put('/api/user/otherUser/password')
-                .set('authorization',authTokenExample)
+                .set('authorization',authTokenExampleNoAdmin)
                 .send({newpassword: userNewPassword.password})
                 .end((err, res) => {
                     res.should.have.status(401);
@@ -155,6 +239,34 @@ describe('Authentication routes', () => {
                     done();
                 });
             });
+    });
+
+    describe('DELETE api/user/:userId for other user as admin', () => {
+        it('it sould delete the user', (done) => {
+            var user = new User({username: 'benjaminfranklin', hash_password: '5k3</@3h4;%v;j&(/i=!S5=k6p%qwV5', role: 'expert'});
+            user.save((err, user) => {
+                    chai.request(app)
+                    .delete('/api/user/benjaminfranklin')
+                    .set('authorization',authTokenExample)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        done();
+                    });
+            });
+        });  
+    });
+
+    describe('DELETE api/user/:userId for other user', () => {
+        it('it sould fail to delete the user', (done) => {
+            chai.request(app)
+            .delete('/api/user/benjaminfranklin')
+            .set('authorization',authTokenExampleNoAdmin)
+            .end((err, res) => {
+                res.should.have.status(401);
+                expect(res.body.message).to.equal('You are not authorized to delete another user.');
+                done();
+            });
+        });
     });
 
     describe('PUT api/user/:userId/password without Parameters', () => {
