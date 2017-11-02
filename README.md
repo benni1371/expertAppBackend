@@ -1,42 +1,60 @@
-The REST API for the expert collaboration app
+#The Rest API for the expert collaboration app
 
-To deploy in local mode:
+#Deploy in local mode
 
+```
 sudo docker run -d -p 27017:27017 mongo
 sudo redis-server
 sudo npm start
+```
 
-To use first request a user & sign in:
+Add to the database an admin user or any other user
+```
+{
+    "hash_password": "$2a$10$sg/DPvInU6EZEdQdHheKWePhDYbiyoOQV6TxrdOecriCUybkhsBa6",
+    "username": "admin",
+    "role": "admin"
+}
+```
+Sign in with POST /signin with body 
+```
+{
+	"username":"admin",
+	"password":"testPassword"
+}
+```
+Add the token as authorization header to every /api request
 
-curl -H "Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inh5eiIsIl9pZCI6IjU5ZTgxNmFkYzVhMzQ3MzYzMjg1MDdmZCIsImlhdCI6MTUwODM4MjQyNn0.m8jygbi6jmjK3ztLViVRcvFqCsMIsKeLr3scEyHwLvM" -H "Content-Type: application/json" -X POST -d '{"username":"xyz","password":"xyz"}' http://localhost:3000/api/signup
+#Available routes
 
-curl -H "Content-Type: application/json" -X POST -d '{"username":"xyz","password":"xyz"}' http://localhost:3000/signin
-
-Add the token to the authorization header and then you can use the /api routes:
-
+##Exceptions
 GET /api/exception
-
-curl -H "Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inh5eiIsIl9pZCI6IjU5ZTgxNmFkYzVhMzQ3MzYzMjg1MDdmZCIsImlhdCI6MTUwODM4MjQyNn0.m8jygbi6jmjK3ztLViVRcvFqCsMIsKeLr3scEyHwLvM" -X GET http://localhost:3000/api/exception
-
 POST /api/exception
+GET /api/exception/:exceptionId
 PUT /api/exception/:exceptionId
-GET  /api/exception/:exceptionId/comment
+DELETE /api/exception/:exceptionId
+
+##Comments
 POST /api/exception/:exceptionId/comment
-PUT /api/exception/:exceptionId/comment
-GET /user/:userName/picture
-GET /api/picture/:pictureId
-POST /api/signup
+PUT /api/exception/:exceptionId/comment/:commentId
+DELETE /api/exception/:exceptionId/comment/:commentId
+
+##Authentication and user management
+POST /api/user
+PUT /api/user/:userId/password
+PUT /api/user/:userId/role
+DELETE /api/user/:userId
 POST /signin
 
+##File routes
+POST /api/exception/:exceptionId/picture
+POST /api/user/:userName/picture
+GET /api/picture/:pictureId
+GET /api/user/:userName/picture
+
+##Help files for testing
 To upload picture use: testFileUpload.html
 To test socket.io use: testSocketio.html
 
-Future plans: 
--> Mit unit test warten bis redis und mongo connected
-
--> bei authentication prüfen, ob token validated
--> wenn user geupdated token invalidieren
-
--> Rollensystem
-
--> alles als docker compose, io socket redis, nginx usw.
+#Future plans: 
+Build with docker compose, io socket redis, nginx etc.
