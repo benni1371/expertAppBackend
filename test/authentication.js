@@ -67,6 +67,25 @@ describe('Authentication routes', () => {
             });
     });
 
+    describe('POST api/signup with Http-Method-Override', () => {
+        it('it sould ignore the method override', (done) => {
+            chai.request(app)
+                .options('/api/user')
+                .set('X-HTTP-Method-Override','POST')
+                .send(user)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    chai.request(app)
+                    .post('/signin')
+                    .send(user)
+                    .end((err, res) => {
+                        res.should.have.status(401);
+                        done();
+                    });
+                });
+            });
+    });
+
     describe('POST api/signup & signin without admin role', () => {
         it('it sould signup and signin', (done) => {
             chai.request(app)
