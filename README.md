@@ -28,33 +28,33 @@ Add the token as authorization header to every /api request
 ## Available routes
 
 ### Exceptions
--GET /api/exception
--POST /api/exception
--GET /api/exception/:exceptionId
--PUT /api/exception/:exceptionId
--DELETE /api/exception/:exceptionId
+- GET /api/exception
+- POST /api/exception
+- GET /api/exception/:exceptionId
+- PUT /api/exception/:exceptionId
+- DELETE /api/exception/:exceptionId
 
 ### Comments
--POST /api/exception/:exceptionId/comment
--PUT /api/exception/:exceptionId/comment/:commentId
--DELETE /api/exception/:exceptionId/comment/:commentId
+- POST /api/exception/:exceptionId/comment
+- PUT /api/exception/:exceptionId/comment/:commentId
+- DELETE /api/exception/:exceptionId/comment/:commentId
 
 ### Authentication and user management
--POST /api/user
--PUT /api/user/:userId/password
--PUT /api/user/:userId/role
--DELETE /api/user/:userId
--POST /signin
+- POST /api/user
+- PUT /api/user/:userId/password
+- PUT /api/user/:userId/role
+- DELETE /api/user/:userId
+- POST /signin
 
 ### File routes
--POST /api/exception/:exceptionId/picture
--POST /api/user/:userName/picture
--GET /api/picture/:pictureId
--GET /api/user/:userName/picture
+- POST /api/exception/:exceptionId/picture
+- POST /api/user/:userName/picture
+- GET /api/picture/:pictureId
+- GET /api/user/:userName/picture
 
 ### Help files for testing
--To upload picture use: testFileUpload.html
--To test socket.io use: testSocketio.html
+- To upload picture use: testFileUpload.html
+- To test socket.io use: testSocketio.html
 
 ## Future plans: 
 Build with docker compose, io socket redis, nginx etc.
