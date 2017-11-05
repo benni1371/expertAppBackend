@@ -251,7 +251,8 @@ describe('Authentication routes', () => {
             chai.request(app)
                 .put('/api/user/otherUser/password')
                 .set('authorization',authTokenExampleNoAdmin)
-                .send({newpassword: userNewPassword.password})
+                .send({newpassword: userNewPassword.password,
+                    oldpassword: user.password})
                 .end((err, res) => {
                     res.should.have.status(401);
                     expect(res.body.message).to.equal('You are not authorized to change another user\'s password.');
@@ -320,7 +321,8 @@ describe('Authentication routes', () => {
                             chai.request(app)
                                 .put('/api/user/createdUser/password')
                                 .set('authorization',res.body.token)
-                                .send({newpassword: userNewPassword.password})
+                                .send({newpassword: userNewPassword.password,
+                                    oldpassword: user.password})
                                 .end((err, res) => {
                                     chai.request(app)
                                     .post('/signin')
@@ -330,6 +332,35 @@ describe('Authentication routes', () => {
                                         res.body.should.have.property('token');
                                         done();
                                     });
+                                });
+                        });
+                });
+        });
+    });
+
+    describe('PUT api/user/:userId/password with wrong old password', () => {
+        it('it sould signup, signin but not change password', (done) => {
+            chai.request(app)
+                .post('/api/user')
+                .set('authorization',authTokenExample)
+                .send(user)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    expect(res.body.username).to.equal(user.username);
+                    chai.request(app)
+                        .post('/signin')
+                        .send(user)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.have.property('token');
+                            chai.request(app)
+                                .put('/api/user/createdUser/password')
+                                .set('authorization',res.body.token)
+                                .send({newpassword: userNewPassword.password,
+                                    oldpassword: 'wrong password'})
+                                .end((err, res) => {
+                                    res.should.have.status(401);
+                                    done();
                                 });
                         });
                 });
@@ -355,7 +386,8 @@ describe('Authentication routes', () => {
                             chai.request(app)
                                 .put('/api/user/createdUser/password')
                                 .set('authorization',token)
-                                .send({newpassword: userNewPassword.password})
+                                .send({newpassword: userNewPassword.password,
+                                    oldpassword: user.password})
                                 .end((err, res) => {
                                     chai.request(app)
                                     .post('/api/exception')
@@ -427,4 +459,79 @@ describe('Authentication routes', () => {
                 });
         });
     });
+
+    describe('DELETE api/user/:userId own user', () => {
+        it('it sould delete the user', (done) => {
+            var user = new User({username: 'benjaminfranklin', hash_password: '$2a$10$sg/DPvInU6EZEdQdHheKWePhDYbiyoOQV6TxrdOecriCUybkhsBa6', role: 'expert'});
+            user.save((err, user) => {
+                chai.request(app)
+                .post('/signin')
+                .send({
+                    username: user.username,
+                    password: 'testPassword'
+                })
+                .end((err, res) => {
+                    var token = res.body.token;
+                    chai.request(app)
+                    .delete('/api/user/benjaminfranklin')
+                    .set('authorization',token)
+                    .send({password: 'testPassword'})
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    describe('DELETE api/user/:userId own user without old password', () => {
+        it('it sould be rejected', (done) => {
+            var user = new User({username: 'benjaminfranklin', hash_password: '$2a$10$sg/DPvInU6EZEdQdHheKWePhDYbiyoOQV6TxrdOecriCUybkhsBa6', role: 'expert'});
+            user.save((err, user) => {
+                chai.request(app)
+                .post('/signin')
+                .send({
+                    username: user.username,
+                    password: 'testPassword'
+                })
+                .end((err, res) => {
+                    var token = res.body.token;
+                    chai.request(app)
+                    .delete('/api/user/benjaminfranklin')
+                    .set('authorization',token)
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    describe('DELETE api/user/:userId own user with wrong old password', () => {
+        it('it sould be rejected', (done) => {
+            var user = new User({username: 'benjaminfranklin', hash_password: '$2a$10$sg/DPvInU6EZEdQdHheKWePhDYbiyoOQV6TxrdOecriCUybkhsBa6', role: 'expert'});
+            user.save((err, user) => {
+                chai.request(app)
+                .post('/signin')
+                .send({
+                    username: user.username,
+                    password: 'testPassword'
+                })
+                .end((err, res) => {
+                    var token = res.body.token;
+                    chai.request(app)
+                    .delete('/api/user/benjaminfranklin')
+                    .set('authorization',token)
+                    .send({password: 'wrongPassword'})
+                    .end((err, res) => {
+                        res.should.have.status(401);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+    
 });
