@@ -459,4 +459,79 @@ describe('Authentication routes', () => {
                 });
         });
     });
+
+    describe('DELETE api/user/:userId own user', () => {
+        it('it sould delete the user', (done) => {
+            var user = new User({username: 'benjaminfranklin', hash_password: '$2a$10$sg/DPvInU6EZEdQdHheKWePhDYbiyoOQV6TxrdOecriCUybkhsBa6', role: 'expert'});
+            user.save((err, user) => {
+                chai.request(app)
+                .post('/signin')
+                .send({
+                    username: user.username,
+                    password: 'testPassword'
+                })
+                .end((err, res) => {
+                    var token = res.body.token;
+                    chai.request(app)
+                    .delete('/api/user/benjaminfranklin')
+                    .set('authorization',token)
+                    .send({password: 'testPassword'})
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    describe('DELETE api/user/:userId own user without old password', () => {
+        it('it sould be rejected', (done) => {
+            var user = new User({username: 'benjaminfranklin', hash_password: '$2a$10$sg/DPvInU6EZEdQdHheKWePhDYbiyoOQV6TxrdOecriCUybkhsBa6', role: 'expert'});
+            user.save((err, user) => {
+                chai.request(app)
+                .post('/signin')
+                .send({
+                    username: user.username,
+                    password: 'testPassword'
+                })
+                .end((err, res) => {
+                    var token = res.body.token;
+                    chai.request(app)
+                    .delete('/api/user/benjaminfranklin')
+                    .set('authorization',token)
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    describe('DELETE api/user/:userId own user with wrong old password', () => {
+        it('it sould be rejected', (done) => {
+            var user = new User({username: 'benjaminfranklin', hash_password: '$2a$10$sg/DPvInU6EZEdQdHheKWePhDYbiyoOQV6TxrdOecriCUybkhsBa6', role: 'expert'});
+            user.save((err, user) => {
+                chai.request(app)
+                .post('/signin')
+                .send({
+                    username: user.username,
+                    password: 'testPassword'
+                })
+                .end((err, res) => {
+                    var token = res.body.token;
+                    chai.request(app)
+                    .delete('/api/user/benjaminfranklin')
+                    .set('authorization',token)
+                    .send({password: 'wrongPassword'})
+                    .end((err, res) => {
+                        res.should.have.status(401);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+    
 });
