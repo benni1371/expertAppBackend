@@ -5,7 +5,7 @@
     <body>
      <form id="uploadForm"
          enctype="multipart/form-data"
-         action="http://expertapi.herokuapp.com/api/user/benni/picture"
+         action="http://localhost:3000/api/exception/5a032f929c31f11093984d2c/picture"
          method="post">
      <input type="file" name="file" />
      <input type="submit" value="Upload Image" name="submit">
@@ -21,7 +21,7 @@
         $("#status").empty().text("File is uploading...");
         $(this).ajaxSubmit({
             headers: {  
-                'authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbnJpayIsIl9pZCI6IjU5ZTU2NGVhN2I0Y2ViMDAxZjM1MDE1MCIsImlhdCI6MTUwODIwNTgxOH0.RuBLrrXjfCXM5JDgTGIUEH953V0F7HHJ2TzDuX02zGE'
+                'authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inh5eiIsInJvbGUiOiJhZG1pbiIsIl9pZCI6IjU5ZTgxNmFkYzVhMzQ3MzYzMjg1MDdmZCIsImlhdCI6MTUwODM4MjQyNn0.Zs6DsMIBos-R0pse5dhccV6DFwY4XQ88C34zWH8Fq-o'
             }, 
             error: function(xhr) {
                 status('Error: ' + xhr.status);

@@ -6,15 +6,19 @@ var mongoose = require('mongoose');
 var Gridfs = require('gridfs-stream');
 var Exception = require('../models/schemas').exceptionSchema;
 var User = require('../models/user');
-var imagemagick = require('imagemagick');
+var sharp = require('sharp');
 var config = require('../config/database');
 var authorize = require('../security/authorization-middleware');
 
 var saveResource = function(req,res,callback){
-  imagemagick.resize({
-    srcPath: req.files.file.path,
-    dstPath: 'smaller-'+req.files.file,
-    width: config.imageWidth}, function(err, stdout, stderr) {
+  if(!req.files.file)
+    return callback("Please upload file", null);
+
+  console.log(req.files.file);
+  sharp(req.files.file.path)
+    .resize(config.imageWidth, config.imageWidth)
+    .max()
+    .toFile('smaller-'+req.files.file, function(err) {
       var db = mongoose.connection.db;
       var mongoDriver = mongoose.mongo;
       var gfs = new Gridfs(db, mongoDriver);
@@ -26,16 +30,19 @@ var saveResource = function(req,res,callback){
       });
       fs.createReadStream('smaller-'+req.files.file).pipe(writestream);
       writestream.on('close', function(file) {
-        callback(file);
-        fs.unlink(req.files.file.path, function(err) {});
+        callback(undefined, file);
         fs.unlink('smaller-'+req.files.file, function(err) {});
+        fs.unlink(req.files.file.path, function(err) {});
       });
-  });
+    });
 }
 
 app.post('/api/exception/:exceptionId/picture',authorize(['expert','admin']), multiparty, function(req, res){
   Exception.findById(req.params.exceptionId, function(err, exception) {
-    saveResource(req,res,function(file){
+    saveResource(req,res,function(errFile,file){
+        if (errFile)
+            return res.status(400).json({ message: errFile });
+
         if (err || !exception)
             return res.status(400).json({ message: 'Error: Exception not found' });
 
@@ -58,7 +65,9 @@ app.post('/api/user/:userName/picture',authorize(['expert','admin']), multiparty
   if(req.params.userName != req.user.username && req.user.role != 'admin')
     return res.status(401).json({ message: 'Not authorized.' });
 
-  saveResource(req,res,function(file){
+  saveResource(req,res,function(errFile,file){
+    if (errFile)
+      return res.status(400).json({ message: errFile });
     User.findOne({ 'username' :  req.params.userName },function(err, user){
       if (err || !user)
           return res.status(400).json({ message: 'Error: User not found' });
