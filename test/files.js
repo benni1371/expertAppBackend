@@ -135,7 +135,7 @@ describe('File routes', () => {
             chai.request(app).post('/api/user/benjaminfranklin/picture')
                 .set('authorization', authTokenExample)
                 .end(function(err, res) {
-                    res.should.have.status(500);
+                    res.should.have.status(400);
                     done();
             });
         });
@@ -227,7 +227,7 @@ describe('File routes', () => {
             chai.request(app).post('/api/user/'+exceptionId+'/picture')
                 .set('authorization', authTokenExample)
                 .end(function(err, res) {
-                    res.should.have.status(500);
+                    res.should.have.status(400);
                     done();
             });
         });
