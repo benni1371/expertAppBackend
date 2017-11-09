@@ -16,9 +16,9 @@ if(process.env.API_SECRET && process.env.NODE_ENV != 'test')
   config.API_SECRET = process.env.API_SECRET;
 
 //Only for testing purpose!
-require('./helpers/tokenStorage').storeToken('xyz',require('./config/database').authTokenExample,function(){
+/*require('./helpers/tokenStorage').storeToken('xyz',require('./config/database').authTokenExample,function(){
   console.log("I am not productive!");
-});
+});*/
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: true }));
