@@ -30,6 +30,9 @@ app.put('/api/user/:userId/password',authorize(['admin','expert']),function(req,
   if(!req.body.newpassword)
     return res.status(400).send({message: 'Please provide newpassword'});
 
+  if(!req.body.oldpassword && req.user.role != 'admin')
+    return res.status(400).send({message: 'Please provide newpassword'});
+
   if(req.params.userId != req.user.username && req.user.role != 'admin')
     return res.status(401).json({ message: 'You are not authorized to change another user\'s password.' });
 
@@ -37,9 +40,13 @@ app.put('/api/user/:userId/password',authorize(['admin','expert']),function(req,
     username: req.params.userId
   }, function(err, user) {
     if (err) throw err;
-    if (!user) {
+    if (!user)
       return res.status(400).json({ message: 'User not found.' });
-    }
+    
+    if (req.user.role != 'admin' && !user.comparePassword(req.body.oldpassword))
+      return res.status(401).json({ message: 'Authentication failed. Invalid user or password.' });
+
+
     user.hash_password = bcrypt.hashSync(req.body.newpassword, 10);
     user.save(function(err, user) {
       if (err) {
@@ -82,18 +89,31 @@ app.put('/api/user/:userId/role',authorize(['admin']),function(req, res) {
 app.delete('/api/user/:userId',authorize(['expert','admin']),function(req, res) {
   if(req.params.userId != req.user.username && req.user.role != 'admin')
     return res.status(401).json({ message: 'You are not authorized to delete another user.' });
+  
+  if(!req.body.password && req.user.role != 'admin')
+    return res.status(400).send({message: 'Please provide password'});
 
-  User.remove({username: req.params.userId}, function(err) {
-    if (err)
+    User.findOne({
+      username: req.params.userId
+    }, function(err, user) {
+      if (err)
         return res.status(400).send({message: err});
 
-    tokenstorage.deleteTokensOfUser(req.params.userId);
-    res.json({ message: 'Successfully deleted' });
-  });
+      if (req.user.role != 'admin' && !user.comparePassword(req.body.password))
+        return res.status(401).json({ message: 'Authentication failed. Invalid user or password.' });
+
+        User.remove({username: req.params.userId}, function(err) {
+          if (err)
+            return res.status(400).send({message: err});
+
+          tokenstorage.deleteTokensOfUser(req.params.userId);
+          res.json({ message: 'Successfully deleted' });
+        });
+    });
 });
 
 app.post('/signin', function(req, res) {
-  if(!req.body.username || !req.body.username)
+  if(!req.body.username || !req.body.password)
     return res.status(400).send({message: 'Please provide username and password'});
 
   User.findOne({

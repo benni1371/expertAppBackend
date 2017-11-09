@@ -14,7 +14,6 @@ var saveResource = function(req,res,callback){
   if(!req.files.file)
     return callback("Please upload file", null);
 
-  console.log(req.files.file);
   sharp(req.files.file.path)
     .resize(config.imageWidth, config.imageWidth)
     .max()
@@ -83,25 +82,29 @@ app.post('/api/user/:userName/picture',authorize(['expert','admin']), multiparty
   });
 });
 
-app.get('/api/picture/:pictureId',authorize(['expert','admin']), function(req, res) {
+var sendPicture = function(pictureId,res){
   var db = mongoose.connection.db;
   var mongoDriver = mongoose.mongo;
   var gfs = new Gridfs(db, mongoDriver);
   var options = {
-    _id: req.params.pictureId
+    _id: pictureId
   };
   gfs.exist(options, function (err, found) {
     if (!found)
       return res.status(400).json({ message: 'Error: Picture not found' });
     var readstream = gfs.createReadStream(options);
     readstream.pipe(res);
-  }); 
+  });
+}
+
+app.get('/api/picture/:pictureId',authorize(['expert','admin']), function(req, res) {
+  sendPicture(req.params.pictureId,res);
 });
 
 app.get('/api/user/:userName/picture', function(req, res){
   User.findOne({ 'username' :  req.params.userName },function(err, user){
       if (err || !user)
           return res.status(400).json({ message: 'Error: User not found' });
-      res.redirect('/api/picture/'+user.pictureurl);
+      sendPicture(user.pictureurl,res);
     });
 });
